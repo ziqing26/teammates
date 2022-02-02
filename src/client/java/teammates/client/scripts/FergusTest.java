@@ -160,7 +160,7 @@ public static void generateStatisticsMinute() {
     }
 
     public static void generateResponsesNow() {
-        int STARTING_ID = tenmillion;
+        int STARTING_ID = 1;
         int NUMBER_OF_FEEDBACK_QUESTIONS = 10;
         FeedbackResponse[] arr = new FeedbackResponse[NUMBER_OF_FEEDBACK_QUESTIONS];
         for (int i = 0; i < NUMBER_OF_FEEDBACK_QUESTIONS; i++) {
@@ -184,8 +184,8 @@ public static void generateStatisticsMinute() {
         // getCount(); //
         // getTotalCount();
         // generateResponses();
-        generateStatisticsMinute();
-        //generateResponsesNow();
+        // generateStatisticsMinute();
+        generateResponsesNow();
         // deleteAllResponses();
         // System.out.println(ZonedDateTime().now());
     }
