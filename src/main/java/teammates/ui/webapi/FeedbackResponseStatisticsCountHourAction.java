@@ -10,7 +10,7 @@ import com.googlecode.objectify.ObjectifyService;
 
 import teammates.common.util.Logger;
 import teammates.storage.entity.FeedbackResponse;
-import teammates.storage.entity.FeedbackResponseStatisticsMinute;
+import teammates.storage.entity.FeedbackResponseStatisticsHour;
 
 /**
  *  Cron job: schedules feedback statistics count every hour.
@@ -28,7 +28,7 @@ public class FeedbackResponseStatisticsCountHourAction extends AdminOnlyAction {
                                     .toInstant(currentOffset);
 
         Instant intervalRepresentativeTime = intervalEndTime.minusSeconds(30 * 60);
-        Instant intervalStartTime = intervalEndTime.minusSeconds(30 * 60).minusMillis(1);
+        Instant intervalStartTime = intervalRepresentativeTime.minusSeconds(30 * 60).minusMillis(1);
         try {
             int count = ObjectifyService.ofy().load()
                     .type(FeedbackResponse.class)
@@ -38,7 +38,7 @@ public class FeedbackResponseStatisticsCountHourAction extends AdminOnlyAction {
                     .list()
                     .size();
 
-            FeedbackResponseStatisticsMinute newEntry = new FeedbackResponseStatisticsMinute(
+            FeedbackResponseStatisticsHour newEntry = new FeedbackResponseStatisticsHour(
                     intervalRepresentativeTime.toString(), count);
             ObjectifyService.ofy().save().entities(newEntry).now();
         } catch (Exception e) {

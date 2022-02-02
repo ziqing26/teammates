@@ -27,7 +27,7 @@ public class FeedbackResponseStatisticsCountMinuteAction extends AdminOnlyAction
                             .toInstant(currentOffset);
 
         Instant intervalRepresentativeTime = intervalEndTime.minusSeconds(30);
-        Instant intervalStartTime = intervalEndTime.minusSeconds(30).minusMillis(1);
+        Instant intervalStartTime = intervalRepresentativeTime.minusSeconds(30).minusMillis(1);
         try {
             int count = ObjectifyService.ofy().load()
                     .type(FeedbackResponse.class)
