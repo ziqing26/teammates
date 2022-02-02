@@ -2,64 +2,58 @@ package teammates.storage.entity;
 
 import java.time.Instant;
 
-import com.googlecode.objectify.annotation.Cache;
-import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.OnSave;
 import com.googlecode.objectify.annotation.Translate;
 
-// TODO read all the annotations
-@Cache
-@Entity
-@Index
-public class FeedbackResponseStatistic extends BaseEntity {
+abstract class FeedbackResponseStatistic extends BaseEntity {
 	@Id
-	private long id;
+    // Represents the middle of the minute
+    private String time;
 
-	/** The 1 minute time frame the statistic is measuring */
-	private Instant timeStamp;
+    private Integer count;
 
-	/** Number of responses recorded during the time period */
-	private int count;
-
-	@Translate(InstantTranslatorFactory.class)
+    @Translate(InstantTranslatorFactory.class)
     private Instant createdAt;
 
     @Translate(InstantTranslatorFactory.class)
     private Instant updatedAt;
 
-
-	// TODO Id of responses for cronjob to verify
-
-	public FeedbackResponseStatistic(Instant timestamp, int count) {
-		this.setTimeStamp(timestamp);
-		this.setCount(count);
-	}
-
-	/**
-     * Gets the timestamp that the statistic accounts for.
-     */
-    public Instant getTimeStamp() {
-        return timeStamp;
+    @SuppressWarnings("unused")
+    protected FeedbackResponseStatistic() {
+        // required by Objectify
     }
 
-    public void setTimeStamp(Instant timestamp) {
-        this.timeStamp = timestamp;
+    /**
+     * Instantiates a new account.
+     *
+     * @param time
+     *            the middle of the minute, with ISO 8601 representation.
+     * @param count
+     *            the number of feedbacck responses in the minute.
+     */
+    public FeedbackResponseStatistic(String time, Integer count) {
+        this.setTime(time);
+        this.setCount(count);
     }
 
-	/**
-     * Gets the number of responses recorded.
-     */
-    public int getCount() {
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public Integer getCount() {
         return count;
     }
 
-    public void setCount(int count) {
+    public void setCount(Integer count) {
         this.count = count;
     }
 
-	public Instant getCreatedAt() {
+    public Instant getCreatedAt() {
 		return createdAt;
 	}
 	
