@@ -9,16 +9,20 @@ import java.util.Objects;
 import teammates.common.util.Const;
 import teammates.common.util.FieldValidator;
 import teammates.storage.entity.FeedbackResponseStatistic;
+import teammates.storage.entity.FeedbackResponseStatisticHour;
 
-public class FeedbackResponseStatisticAttributes extends EntityAttributes<FeedbackResponseStatistic> {
-	private Instant timeStamp;
-	private int count;
+public class FeedbackResponseStatisticAttributes<T extends FeedbackResponseStatistic> extends EntityAttributes<T> {
+    // Interval of statistic measured in seconds 
+    private final int interval;
+	private long time;
+    private int count;
     private transient Instant createdAt;
     private transient Instant updatedAt;
 
-	private FeedbackResponseStatisticAttributes(Instant timeStamp, int count) {
-		this.timeStamp = timeStamp;
+	private FeedbackResponseStatisticAttributes(long time, int count, int interval) {
+		this.time = time;
         this.count = count;
+        this.interval = interval;
 
         this.createdAt = Const.TIME_REPRESENTS_DEFAULT_TIMESTAMP;
         this.updatedAt = Const.TIME_REPRESENTS_DEFAULT_TIMESTAMP;
@@ -26,8 +30,12 @@ public class FeedbackResponseStatisticAttributes extends EntityAttributes<Feedba
 
 
 	@Override
-	public FeedbackResponseStatistic toEntity() {
-		return new FeedbackResponseStatistic(timeStamp, count);
+    public T toEntity() {
+        if (interval == Const.HOUR_IN_SECONDS) {
+            return new FeedbackResponseStatisticHour(time, count);
+        } else if (interval == Const.MINUTE_IN_SECONDS) {
+            return new FeedbackResponseStatisticMinutes(time, count); 
+        }
 	}
 	
     /**
@@ -35,7 +43,7 @@ public class FeedbackResponseStatisticAttributes extends EntityAttributes<Feedba
      */
     public static FeedbackResponseStatisticAttributes valueOf(FeedbackResponseStatistic statistic) {
         FeedbackResponseStatisticAttributes statisticAttributes =
-                new FeedbackResponseStatisticAttributes(statistic.getTimeStamp(), statistic.getCount());
+                new FeedbackResponseStatisticAttributes(statistic.getTime(), statistic.getCount());
 
         if (statistic.getCreatedAt() != null) {
             statisticAttributes.createdAt = statistic.getCreatedAt();
@@ -51,22 +59,23 @@ public class FeedbackResponseStatisticAttributes extends EntityAttributes<Feedba
     public List<String> getInvalidityInfo() {
         List<String> errors = new ArrayList<>();
 
-        addNonEmptyError(FieldValidator.getValidityInfoForNonNullField("feedback response statistic time", timeStamp), errors);
+        addNonEmptyError(FieldValidator.getValidityInfoForNonNullField("feedback response statistic time", time), errors);
 
         return errors;
     }
 
+    // TODO How to sort by time
     /**
      * Sorts the instructors list alphabetically by name.
      */
-	public static void sortByTimeStamp(List<FeedbackResponseStatisticAttributes> statistics) {
-		statistics.sort(Comparator.comparing(statistic -> statistic.getTimeStamp()));
+	public static void sortByTime(List<FeedbackResponseStatisticAttributes<T>> statistics) {
+		statistics.sort(Comparator.comparing(statistic -> statistic.getTime()));
 	}
 
     @Override
     public int hashCode() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(this.timeStamp).append(this.count);
+        stringBuilder.append(this.time).append(this.count);
         return stringBuilder.toString().hashCode();
     }
 
@@ -78,8 +87,9 @@ public class FeedbackResponseStatisticAttributes extends EntityAttributes<Feedba
             return true;
         } else if (this.getClass() == other.getClass()) {
             FeedbackResponseStatisticAttributes otherStatistic = (FeedbackResponseStatisticAttributes) other;
-            return Objects.equals(this.timeStamp, otherStatistic.timeStamp)
-					&& Objects.equals(this.count, otherStatistic.count);
+            return Objects.equals(this.time, otherStatistic.time)
+                    && Objects.equals(this.count, otherStatistic.count)
+                    && Objects.equals(this.interval, otherStatistic.interval);
         } else {
             return false;
         }
@@ -90,12 +100,12 @@ public class FeedbackResponseStatisticAttributes extends EntityAttributes<Feedba
         
     }
 
-    public Instant getTimeStamp() {
-        return timeStamp;
+    public long getTime() {
+        return time;
     }
 
-    public void setTimeStamp(Instant timeStamp) {
-		this.timeStamp = timeStamp;
+    public void setTime(long time) {
+		this.time = time;
     }
 
     public int getCount() {

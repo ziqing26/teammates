@@ -3,15 +3,20 @@ package teammates.storage.entity;
 import java.time.Instant;
 
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.OnSave;
 import com.googlecode.objectify.annotation.Translate;
 
-abstract class FeedbackResponseStatistic extends BaseEntity {
+public abstract class FeedbackResponseStatistic extends BaseEntity {
 	@Id
     // Represents the middle of the minute
-    private String time;
+    private long time;
 
+    @Index
     private Integer count;
+
+    // Size of interval in seconds
+    private final int interval;
 
     @Translate(InstantTranslatorFactory.class)
     private Instant createdAt;
@@ -22,26 +27,20 @@ abstract class FeedbackResponseStatistic extends BaseEntity {
     @SuppressWarnings("unused")
     protected FeedbackResponseStatistic() {
         // required by Objectify
+        
+        // used to remove compilation error
+        this.interval = 0;
     }
 
-    /**
-     * Instantiates a new account.
-     *
-     * @param time
-     *            the middle of the minute, with ISO 8601 representation.
-     * @param count
-     *            the number of feedbacck responses in the minute.
-     */
-    public FeedbackResponseStatistic(String time, Integer count) {
-        this.setTime(time);
-        this.setCount(count);
+    public FeedbackResponseStatistic(int interval) {
+        this.interval = interval;
     }
 
-    public String getTime() {
+    public long getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(long time) {
         this.time = time;
     }
 
@@ -49,13 +48,17 @@ abstract class FeedbackResponseStatistic extends BaseEntity {
         return count;
     }
 
-    public void setCount(Integer count) {
+    public void setCount(int count) {
         this.count = count;
     }
 
     public Instant getCreatedAt() {
-		return createdAt;
-	}
+        return createdAt;
+    }
+    
+    public int getInterval() {
+        return interval;
+    }
 	
 	/**
      * Sets the createdAt timestamp.

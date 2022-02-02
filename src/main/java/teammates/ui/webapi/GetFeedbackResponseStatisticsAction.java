@@ -50,7 +50,7 @@ class GetFeedbackResponseStatisticsAction extends AdminOnlyAction {
         feedbackResponseStatistics =
                 logic.getFeedbackResponseStatistics(Instant.ofEpochMilli(startTime), Instant.ofEpochMilli(endTime));
 
-        FeedbackResponseStatisticAttributes.sortByTimeStamp(feedbackResponseStatistics);
+        FeedbackResponseStatisticAttributes.sortByTime(feedbackResponseStatistics);
         
         FeedbackResponseStatisticsData feedbackResponseStatisticsData = new FeedbackResponseStatisticsData(feedbackResponseStatistics);
 
