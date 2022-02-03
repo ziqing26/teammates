@@ -16,7 +16,6 @@ import com.googlecode.objectify.cmd.LoadType;
 import com.googlecode.objectify.cmd.Query;
 
 import teammates.common.datatransfer.attributes.FeedbackResponseStatisticAttributes;
-import teammates.common.datatransfer.attributes.FeedbackResponseStatisticHourAttributes;
 import teammates.storage.entity.FeedbackResponseStatisticHour;
 import teammates.ui.webapi.FeedbackResponseStatisticsCountHourAction;
 
