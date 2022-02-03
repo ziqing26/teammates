@@ -2,10 +2,15 @@ package teammates.storage.api;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import java.time.temporal.ChronoUnit;
 
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.cmd.LoadType;
@@ -17,7 +22,7 @@ import teammates.storage.entity.FeedbackResponseStatisticMinute;
 /**
  * Handles statistics at 1 minute intervals for FeedbackResponse.
  */
-public class FeedbackResponseStatisticsMinuteDb extends EntitiesDb<FeedbackResponseStatisticMinute, FeedbackResponseStatisticAttributes> {
+public class FeedbackResponseStatisticsMinuteDb {
 	private static final FeedbackResponseStatisticsMinuteDb instance = new FeedbackResponseStatisticsMinuteDb();
 
 	public static FeedbackResponseStatisticsMinuteDb inst() {
@@ -27,7 +32,6 @@ public class FeedbackResponseStatisticsMinuteDb extends EntitiesDb<FeedbackRespo
 	/**
 	 * Checks whether there are existing entities in the database.
 	 */
-	@Override
 	public boolean hasExistingEntities(FeedbackResponseStatisticAttributes feedbackResponseStatistic) {
 		return !load()
                 .filterKey(Key.create(FeedbackResponseStatisticMinute.class, feedbackResponseStatistic.getTime()))
@@ -35,7 +39,6 @@ public class FeedbackResponseStatisticsMinuteDb extends EntitiesDb<FeedbackRespo
                 .isEmpty();
 	}
 
-	@Override
 	public LoadType<FeedbackResponseStatisticMinute> load() {
 		return ofy().load().type(FeedbackResponseStatisticMinute.class); 
 	}
@@ -52,12 +55,21 @@ public class FeedbackResponseStatisticsMinuteDb extends EntitiesDb<FeedbackRespo
      * Gets the feedback statistics.
      */
     public List<FeedbackResponseStatisticAttributes> getFeedbackResponseStatisticsInInterval(Instant startTime, Instant endTime) {
-        Query<FeedbackResponseStatisticMinute> query = this.load().filterKey("time >= ", startTime)
-                .filterKey("time <=", endTime);
+        // Query<FeedbackResponseStatisticMinute> query = this.load().filterKey("time >= ", startTime)
+        //         .filterKey("time <=", endTime);
 
-        List<FeedbackResponseStatisticAttributes> statistics = StreamSupport.stream(query.spliterator(), false)
-				.map(stats -> makeAttributes(stats))
-				.collect(Collectors.toList());
+        // List<FeedbackResponseStatisticAttributes> statistics = StreamSupport.stream(query.spliterator(), false)
+		// 		.map(stats -> makeAttributes(stats))
+		// 		.collect(Collectors.toList());
+		Random rng = new Random();
+		List<FeedbackResponseStatisticAttributes> statistics = new ArrayList<>();
+		long intervals = Duration.between(startTime, endTime).toMinutes();
+		for (long i = 0; i <= intervals; i++) {
+			long time = startTime.plus(i, ChronoUnit.MINUTES).getEpochSecond();
+			int count = rng.nextInt(100);
+			FeedbackResponseStatisticMinute minuteEntity = new FeedbackResponseStatisticMinute(time, count);
+			statistics.add(makeAttributes(minuteEntity));
+		}
 				
 		return statistics;
     }
