@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { expand, finalize, reduce } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import { ResponseStatisticsService } from 'src/web/services/response-statistics.service';
 import { StatusMessageService } from 'src/web/services/status-message.service';
 import { TimezoneService } from '../../../services/timezone.service';
@@ -95,7 +95,6 @@ export class AdminStatisticsPageComponent implements OnInit {
 
 
   searchForStatistics(timestampFrom: number, timestampUntil: number): void {
-    console.log("isSearching");
     this.queryParams = {
       startTime: timestampFrom,
       endTime: timestampUntil,
@@ -104,25 +103,25 @@ export class AdminStatisticsPageComponent implements OnInit {
     this.isSearching = true;
     this.responseStatisticsService.searchForStatistics(this.queryParams)
     .pipe(
-      expand(() => {
-        return this.responseStatisticsService.searchForStatistics(this.queryParams)
-      }),
-      reduce((acc: FeedbackResponseStatistic[], res: FeedbackResponseStatistics) => acc.concat(res.statistics), [] as FeedbackResponseStatistic[]),
       finalize(() => {
-        console.log("hello");
+        this.isLoading = false;
         this.isSearching = false;
         this.hasResult = true;
       }),
     )
-    .subscribe((statisticsResults: FeedbackResponseStatistic[]) => this.processStatisticsForGraph(statisticsResults),
+    .subscribe((statisticsResults: FeedbackResponseStatistics) => {
+      console.log("statisticsResults", statisticsResults)
+      this.processStatisticsForGraph(statisticsResults.statistics)
+    },
       (e: ErrorMessageOutput) => this.statusMessageService.showErrorToast(e.error.message));
   }
-
+  
   private processStatisticsForGraph(stats: FeedbackResponseStatistic[]): void {
     const sourceToFrequencyMap: Map<number, number> = stats
       .reduce((acc: Map<number, number>, stats: FeedbackResponseStatistic) =>
         acc.set(stats.time, (acc.get(stats.time) || 0)),
         new Map<number, number>());
+    console.log("sourceToFrequencyMap", sourceToFrequencyMap)
     sourceToFrequencyMap.forEach((value: number, key: number) => {
       this.chartResult.push({ timestamp: key, numberOfTimes: value });
     });

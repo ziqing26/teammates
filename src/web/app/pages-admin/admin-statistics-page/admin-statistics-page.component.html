@@ -43,7 +43,6 @@
   </div>
 </div>
 
-<!-- Add loading sign -->
 <div *ngIf="hasResult">
   <div id="linechart" style="height: 400px; width: 100%;" *tmIsLoading="isSearching">
     <tm-statistics-chart [data]="chartResult" *ngIf="chartResult.length>0; else noDataMessage"></tm-statistics-chart>
