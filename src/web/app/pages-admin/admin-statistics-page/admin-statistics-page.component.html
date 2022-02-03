@@ -1,8 +1,5 @@
-<h1>Statistics</h1>
+<h1>Statistics!</h1>
 <p>This page allows you to view the response statistics in the past.</p>
-<!-- <button (click)="switchView()" *ngIf="isTableView" class="btn btn-info">Switch to histogram view</button>
-<button (click)="switchView()" *ngIf="!isTableView" class="btn btn-info">Switch to table view</button> -->
-
 
 <div class="card bg-form no-border">
   <div class="card-body">
@@ -46,6 +43,7 @@
   </div>
 </div>
 
+<!-- Add loading sign -->
 <div *ngIf="hasResult">
   <div id="linechart" style="height: 400px; width: 100%;" *tmIsLoading="isSearching">
     <tm-statistics-chart [data]="chartResult" *ngIf="chartResult.length>0; else noDataMessage"></tm-statistics-chart>

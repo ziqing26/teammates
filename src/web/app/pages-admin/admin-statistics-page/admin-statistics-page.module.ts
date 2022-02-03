@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { NgbDatepickerModule, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { LoadingSpinnerModule } from '../../components/loading-spinner/loading-spinner.module';
+import { StatisticsChartComponent } from '../../components/statistics-chart/statistics-chart.component';
 import { AdminStatisticsPageComponent } from './admin-statistics-page.component';
 
 const routes: Routes = [
@@ -19,6 +20,7 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     AdminStatisticsPageComponent,
+    StatisticsChartComponent
   ],
   exports: [
     AdminStatisticsPageComponent,

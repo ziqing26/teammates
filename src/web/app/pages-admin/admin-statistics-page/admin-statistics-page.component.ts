@@ -4,9 +4,9 @@ import { ResponseStatisticsService } from 'src/web/services/response-statistics.
 import { StatusMessageService } from 'src/web/services/status-message.service';
 import { TimezoneService } from '../../../services/timezone.service';
 import {
-  QueryStatisticsParams,
-  ResponseStatistics,
-  ResponseStatisticsEntry,
+  QueryLogsParams,
+  FeedbackResponseStatistics,
+  FeedbackResponseStatistic,
 } from '../../../types/api-output';
 import { DateFormat } from '../../components/datepicker/datepicker.component';
 import { StatisticsChartDataModel } from '../../components/statistics-chart/ststistics-chart-model';
@@ -42,11 +42,11 @@ export class AdminStatisticsPageComponent implements OnInit {
     statisticsDateTo: { year: 0, month: 0, day: 0 },
     statisticsTimeTo: { hour: 0, minute: 0 },
   };
-  queryParams: Partial<QueryStatisticsParams> = { startTime: 0, endTime: 0 };
+  queryParams: Partial<QueryLogsParams> = { startTime: 0, endTime: 0 };
   dateToday: DateFormat = { year: 0, month: 0, day: 0 };
   earliestSearchDate: DateFormat = { year: 0, month: 0, day: 0 };
   chartResult: StatisticsChartDataModel[] = [];
-  // isLoading: boolean = false;
+  isLoading: boolean = false;
   isSearching: boolean = false;
   hasResult: boolean = false;
   // isFiltersExpanded: boolean = false;
@@ -63,7 +63,7 @@ export class AdminStatisticsPageComponent implements OnInit {
     ) { }
 
   ngOnInit(): void {
-    // this.isLoading = true;
+    this.isLoading = true;
     const now: Date = new Date();
     this.dateToday.year = now.getFullYear();
     this.dateToday.month = now.getMonth() + 1;
@@ -95,28 +95,32 @@ export class AdminStatisticsPageComponent implements OnInit {
 
 
   searchForStatistics(timestampFrom: number, timestampUntil: number): void {
+    console.log("isSearching");
     this.queryParams = {
       startTime: timestampFrom,
       endTime: timestampUntil,
     };
+    this.isLoading = true;
+    this.isSearching = true;
     this.responseStatisticsService.searchForStatistics(this.queryParams)
     .pipe(
       expand(() => {
         return this.responseStatisticsService.searchForStatistics(this.queryParams)
       }),
-      reduce((acc: ResponseStatisticsEntry[], res: ResponseStatistics) => acc.concat(res.statistics), [] as ResponseStatisticsEntry[]),
+      reduce((acc: FeedbackResponseStatistic[], res: FeedbackResponseStatistics) => acc.concat(res.statistics), [] as FeedbackResponseStatistic[]),
       finalize(() => {
+        console.log("hello");
         this.isSearching = false;
         this.hasResult = true;
       }),
     )
-    .subscribe((statisticsResults: ResponseStatisticsEntry[]) => this.processStatisticsForGraph(statisticsResults),
+    .subscribe((statisticsResults: FeedbackResponseStatistic[]) => this.processStatisticsForGraph(statisticsResults),
       (e: ErrorMessageOutput) => this.statusMessageService.showErrorToast(e.error.message));
   }
 
-  private processStatisticsForGraph(stats: ResponseStatisticsEntry[]): void {
+  private processStatisticsForGraph(stats: FeedbackResponseStatistic[]): void {
     const sourceToFrequencyMap: Map<number, number> = stats
-      .reduce((acc: Map<number, number>, stats: ResponseStatisticsEntry) =>
+      .reduce((acc: Map<number, number>, stats: FeedbackResponseStatistic) =>
         acc.set(stats.time, (acc.get(stats.time) || 0)),
         new Map<number, number>());
     sourceToFrequencyMap.forEach((value: number, key: number) => {
