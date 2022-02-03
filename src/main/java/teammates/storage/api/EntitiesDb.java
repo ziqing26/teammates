@@ -26,7 +26,7 @@ import teammates.storage.entity.BaseEntity;
  * @param <E> Specific entity class
  * @param <A> Specific attributes class
  */
-abstract class EntitiesDb<E extends BaseEntity, A extends EntityAttributes<E>> {
+abstract class EntitiesDb<E extends BaseEntity, A extends EntityAttributes<? super E>> {
 
     /**
      * Error message when trying to create entity that already exist.
@@ -81,7 +81,7 @@ abstract class EntitiesDb<E extends BaseEntity, A extends EntityAttributes<E>> {
     }
 
     E convertToEntityForSaving(A entityAttributes) throws EntityAlreadyExistsException {
-        return entityAttributes.toEntity();
+        return (E) entityAttributes.toEntity();
     }
 
     /**
@@ -126,7 +126,7 @@ abstract class EntitiesDb<E extends BaseEntity, A extends EntityAttributes<E>> {
                 throw new InvalidParametersException(entityToAdd.getInvalidityInfo());
             }
 
-            E entity = entityToAdd.toEntity();
+            E entity = (E) entityToAdd.toEntity();
             entities.add(entity);
         }
 

@@ -38,7 +38,7 @@ public class FeedbackResponseStatisticsCountMinuteAction extends AdminOnlyAction
                     .size();
 
             FeedbackResponseStatisticMinute newEntry = new FeedbackResponseStatisticMinute(
-                    intervalRepresentativeTime.toString(), count);
+                    intervalRepresentativeTime.getEpochSecond(), count);
             ObjectifyService.ofy().save().entities(newEntry).now();
         } catch (Exception e) {
             log.severe("Unexpected error", e);

@@ -14,7 +14,7 @@ import com.googlecode.objectify.cmd.Query;
 
 import teammates.client.connector.DatastoreClient;
 import teammates.storage.entity.FeedbackResponse;
-import teammates.storage.entity.FeedbackResponseStatisticsMinute;
+import teammates.storage.entity.FeedbackResponseStatisticMinute;
 
 /*
 *   Handles getting of the stats
@@ -45,7 +45,7 @@ public class FergusTest extends DatastoreClient {
     public static void updateForPastMinute() {  // Function will be called 5 seconds after the minute passes.
         Query<FeedbackResponse> intialQuery = ObjectifyService.ofy().load().type(FeedbackResponse.class)
                 .project("createdAt");
-        Instant.now().get
+        // Instant.now().get
 
     }
 
@@ -90,8 +90,8 @@ public static void generateStatisticsMinute() {
             .list()
             .size();
 
-            FeedbackResponseStatisticsMinute newEntry = new FeedbackResponseStatisticsMinute(
-            intervalRepresentativeTime.toString(), count);
+            FeedbackResponseStatisticMinute newEntry = new FeedbackResponseStatisticMinute(
+            intervalRepresentativeTime.getEpochSecond(), count);
             ObjectifyService.ofy().save().entities(newEntry).now();
         } catch (Error e) {
             System.out.println(e);

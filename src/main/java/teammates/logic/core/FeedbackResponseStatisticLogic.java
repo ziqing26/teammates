@@ -6,6 +6,7 @@ import java.util.List;
 
 import teammates.common.datatransfer.attributes.FeedbackResponseStatisticAttributes;
 import teammates.common.util.Const;
+import teammates.storage.api.FeedbackResponseStatisticsHourDb;
 import teammates.storage.api.FeedbackResponseStatisticsMinuteDb;
 
 /**
@@ -33,9 +34,9 @@ public class FeedbackResponseStatisticLogic {
     public List<FeedbackResponseStatisticAttributes> getFeedbackResponseStatistics(Instant startTime, Instant endTime) {
 
 		if (Duration.between(startTime, endTime).compareTo(Const.FEEDBACK_STATISTIC_MINUTE_THRESHHOLD) <= 0) {
-			return FeedbackResponseStatisticsMinuteDb.getFeedbackResponseStatisticsInInterval(startTime, endTime);
+			return feedbackResponseStatisticDb.getFeedbackResponseStatisticsInInterval(startTime, endTime);
 		}
 
-		return FeedbackResponseStatisticsMinuteDb.getFeedbackResponseStatisticsInInterval(startTime, endTime);
+		return feedbackResponseStatisticHourDb.getFeedbackResponseStatisticsInInterval(startTime, endTime);
     }
 }

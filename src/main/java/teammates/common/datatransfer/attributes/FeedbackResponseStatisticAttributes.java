@@ -10,8 +10,9 @@ import teammates.common.util.Const;
 import teammates.common.util.FieldValidator;
 import teammates.storage.entity.FeedbackResponseStatistic;
 import teammates.storage.entity.FeedbackResponseStatisticHour;
+import teammates.storage.entity.FeedbackResponseStatisticMinute;
 
-public class FeedbackResponseStatisticAttributes<T extends FeedbackResponseStatistic> extends EntityAttributes<T> {
+public class FeedbackResponseStatisticAttributes extends EntityAttributes<FeedbackResponseStatistic> {
     // Interval of statistic measured in seconds 
     private final int interval;
 	private long time;
@@ -19,7 +20,7 @@ public class FeedbackResponseStatisticAttributes<T extends FeedbackResponseStati
     private transient Instant createdAt;
     private transient Instant updatedAt;
 
-	private FeedbackResponseStatisticAttributes(long time, int count, int interval) {
+	protected FeedbackResponseStatisticAttributes(long time, int count, int interval) {
 		this.time = time;
         this.count = count;
         this.interval = interval;
@@ -30,11 +31,13 @@ public class FeedbackResponseStatisticAttributes<T extends FeedbackResponseStati
 
 
 	@Override
-    public T toEntity() {
+    public FeedbackResponseStatistic toEntity() {
         if (interval == Const.HOUR_IN_SECONDS) {
             return new FeedbackResponseStatisticHour(time, count);
         } else if (interval == Const.MINUTE_IN_SECONDS) {
-            return new FeedbackResponseStatisticMinutes(time, count); 
+            return new FeedbackResponseStatisticMinute(time, count); 
+        } else {
+            throw new Error();
         }
 	}
 	
@@ -43,7 +46,7 @@ public class FeedbackResponseStatisticAttributes<T extends FeedbackResponseStati
      */
     public static FeedbackResponseStatisticAttributes valueOf(FeedbackResponseStatistic statistic) {
         FeedbackResponseStatisticAttributes statisticAttributes =
-                new FeedbackResponseStatisticAttributes(statistic.getTime(), statistic.getCount());
+                new FeedbackResponseStatisticAttributes(statistic.getTime(), statistic.getCount(), statistic.getInterval());
 
         if (statistic.getCreatedAt() != null) {
             statisticAttributes.createdAt = statistic.getCreatedAt();
@@ -64,11 +67,10 @@ public class FeedbackResponseStatisticAttributes<T extends FeedbackResponseStati
         return errors;
     }
 
-    // TODO How to sort by time
     /**
      * Sorts the instructors list alphabetically by name.
      */
-	public static void sortByTime(List<FeedbackResponseStatisticAttributes<T>> statistics) {
+	public static void sortByTime(List<FeedbackResponseStatisticAttributes> statistics) {
 		statistics.sort(Comparator.comparing(statistic -> statistic.getTime()));
 	}
 

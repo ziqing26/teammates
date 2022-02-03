@@ -16,9 +16,9 @@ public class FeedbackResponseStatisticHour extends FeedbackResponseStatistic {
      * Instantiates a new hourly response statistic.
      *
      * @param time
-     *            the middle of the minute, with ISO 8601 representation.
+     *            the start of the minute, in epoch seconds representation.
      * @param count
-     *            the number of feedbacck responses in the time period.
+     *            the number of feedback responses in the time period.
      */
 	public FeedbackResponseStatisticHour(long time, int count) {
 		super(HOUR_IN_SECONDS);

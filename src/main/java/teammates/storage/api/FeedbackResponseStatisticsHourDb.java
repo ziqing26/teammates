@@ -1,10 +1,18 @@
 package teammates.storage.api;
 
+import static com.googlecode.objectify.ObjectifyService.ofy;
+
+import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.cmd.LoadType;
+import com.googlecode.objectify.cmd.Query;
 
 import teammates.common.datatransfer.attributes.FeedbackResponseStatisticAttributes;
+import teammates.common.datatransfer.attributes.FeedbackResponseStatisticHourAttributes;
 import teammates.storage.entity.FeedbackResponseStatisticHour;
 import teammates.ui.webapi.FeedbackResponseStatisticsCountHourAction;
 
@@ -14,7 +22,7 @@ import teammates.ui.webapi.FeedbackResponseStatisticsCountHourAction;
  * @see FeedbackResponseStatisticHour
  * @see FeedbackResponseStatisticsCountHourAction
  */
-public class FeedbackResponseStatisticsHourDb {
+public class FeedbackResponseStatisticsHourDb extends EntitiesDb<FeedbackResponseStatisticHour, FeedbackResponseStatisticAttributes> {
     private static final FeedbackResponseStatisticsHourDb instance = new FeedbackResponseStatisticsHourDb();
 
 	public static FeedbackResponseStatisticsHourDb inst() {
@@ -27,32 +35,35 @@ public class FeedbackResponseStatisticsHourDb {
 	@Override
 	public boolean hasExistingEntities(FeedbackResponseStatisticAttributes feedbackResponseStatistic) {
 		return !load()
-                .filterKey(Key.create(FeedbackResponseStatisticsHour.class, feedbackResponseStatistic.getTime()))
+                .filterKey(Key.create(FeedbackResponseStatisticHour.class, feedbackResponseStatistic.getTime()))
                 .list()
                 .isEmpty();
 	}
 
 	@Override
-	public LoadType<FeedbackResponseStatisticsHour> load() {
-		return ofy().load().type(FeedbackResponseStatisticsHour.class); 
+	public LoadType<FeedbackResponseStatisticHour> load() {
+		return ofy().load().type(FeedbackResponseStatisticHour.class); 
 	}
 	/**
      * Converts from entity to attributes.
      */
-	public FeedbackResponseStatisticAttributes makeAttributes(FeedbackResponseStatisticsHour statistic) {
+	public FeedbackResponseStatisticAttributes makeAttributes(FeedbackResponseStatisticHour statistic) {
 		assert statistic != null;
 
         return FeedbackResponseStatisticAttributes.valueOf(statistic);
 	}
 
     /**
-     * Gets the feedback statistics .
+     * Gets the feedback statistics.
      */
-    public List<FeedbackResponseStatisticsHour> getFeedbackResponseStatisticsInInterval(Instant startTime, Instant endTime) {
-        Query<FeedbackResponseStatisticsHour> query = this.load().filterKey("time >= ", startTime)
+    public List<FeedbackResponseStatisticAttributes> getFeedbackResponseStatisticsInInterval(Instant startTime, Instant endTime) {
+        Query<FeedbackResponseStatisticHour> query = this.load().filterKey("time >= ", startTime)
                 .filterKey("time <=", endTime);
 
-        List<FeedbackResponseStatisticsHour> statistics = StreamSupport.stream(query.spliterator(), false)
-                .collect(Collectors.toList());
+        List<FeedbackResponseStatisticAttributes> statistics = StreamSupport.stream(query.spliterator(), false)
+				.map(stats -> makeAttributes(stats))
+				.collect(Collectors.toList());
+				
+		return statistics;
     }
 }

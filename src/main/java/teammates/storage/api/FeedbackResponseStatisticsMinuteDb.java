@@ -17,7 +17,7 @@ import teammates.storage.entity.FeedbackResponseStatisticMinute;
 /**
  * Handles statistics at 1 minute intervals for FeedbackResponse.
  */
-public class FeedbackResponseStatisticsMinuteDb extends EntitiesDb<FeedbackResponseStatisticMinute, FeedbackResponseStatisticAttributes<FeedbackResponseStatisticMinute>> {
+public class FeedbackResponseStatisticsMinuteDb extends EntitiesDb<FeedbackResponseStatisticMinute, FeedbackResponseStatisticAttributes> {
 	private static final FeedbackResponseStatisticsMinuteDb instance = new FeedbackResponseStatisticsMinuteDb();
 
 	public static FeedbackResponseStatisticsMinuteDb inst() {
@@ -28,7 +28,7 @@ public class FeedbackResponseStatisticsMinuteDb extends EntitiesDb<FeedbackRespo
 	 * Checks whether there are existing entities in the database.
 	 */
 	@Override
-	public boolean hasExistingEntities(FeedbackResponseStatisticAttributes<FeedbackResponseStatisticMinute> feedbackResponseStatistic) {
+	public boolean hasExistingEntities(FeedbackResponseStatisticAttributes feedbackResponseStatistic) {
 		return !load()
                 .filterKey(Key.create(FeedbackResponseStatisticMinute.class, feedbackResponseStatistic.getTime()))
                 .list()
@@ -42,20 +42,21 @@ public class FeedbackResponseStatisticsMinuteDb extends EntitiesDb<FeedbackRespo
 	/**
      * Converts from entity to attributes.
      */
-	public FeedbackResponseStatisticAttributes<FeedbackResponseStatisticMinute> makeAttributes(FeedbackResponseStatisticMinute statistic) {
+	public FeedbackResponseStatisticAttributes makeAttributes(FeedbackResponseStatisticMinute statistic) {
 		assert statistic != null;
 
         return FeedbackResponseStatisticAttributes.valueOf(statistic);
 	}
 
     /**
-     * Gets the feedback statistics .
+     * Gets the feedback statistics.
      */
-    public List<FeedbackResponseStatisticMinute> getFeedbackResponseStatisticsInInterval(Instant startTime, Instant endTime) {
+    public List<FeedbackResponseStatisticAttributes> getFeedbackResponseStatisticsInInterval(Instant startTime, Instant endTime) {
         Query<FeedbackResponseStatisticMinute> query = this.load().filterKey("time >= ", startTime)
                 .filterKey("time <=", endTime);
 
-        List<FeedbackResponseStatisticMinute> statistics = StreamSupport.stream(query.spliterator(), false)
+        List<FeedbackResponseStatisticAttributes> statistics = StreamSupport.stream(query.spliterator(), false)
+				.map(stats -> makeAttributes(stats))
 				.collect(Collectors.toList());
 				
 		return statistics;
