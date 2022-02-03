@@ -17,6 +17,7 @@ import com.googlecode.objectify.cmd.LoadType;
 import com.googlecode.objectify.cmd.Query;
 
 import teammates.common.datatransfer.attributes.FeedbackResponseStatisticAttributes;
+import teammates.common.util.Const;
 import teammates.storage.entity.FeedbackResponseStatistic;
 
 /**
@@ -55,20 +56,33 @@ public class FeedbackResponseStatisticsDb extends EntitiesDb<FeedbackResponseSta
      * Gets the feedback statistics.
      */
     public List<FeedbackResponseStatisticAttributes> getFeedbackResponseStatisticsInInterval(Instant startTime, Instant endTime, int interval) {
+		assert interval == Const.MINUTE_IN_SECONDS || interval == Const.HOUR_IN_SECONDS;
         // Query<FeedbackResponseStatisticMinute> query = this.load().filterKey("time >= ", startTime)
         //         .filterKey("time <=", endTime);
 
         // List<FeedbackResponseStatisticAttributes> statistics = StreamSupport.stream(query.spliterator(), false)
 		// 		.map(stats -> makeAttributes(stats))
 		// 		.collect(Collectors.toList());
+
 		Random rng = new Random();
 		List<FeedbackResponseStatisticAttributes> statistics = new ArrayList<>();
-		long intervals = Duration.between(startTime, endTime).toMinutes();
+		Duration timeDifference = Duration.between(startTime, endTime);
+
+		long intervals;
+		ChronoUnit timeUnit;
+		if (interval == Const.MINUTE_IN_SECONDS) {
+			intervals = timeDifference.toMinutes();
+			timeUnit = ChronoUnit.MINUTES;
+		} else {
+			intervals = timeDifference.toHours();
+			timeUnit = ChronoUnit.HOURS;
+		}
+
 		for (long i = 0; i <= intervals; i++) {
-			long time = startTime.plus(i, ChronoUnit.MINUTES).getEpochSecond();
+			long time = startTime.plus(i, timeUnit).getEpochSecond();
 			int count = rng.nextInt(100);
-			FeedbackResponseStatistic minuteEntity = new FeedbackResponseStatistic(time, count, interval);
-			statistics.add(makeAttributes(minuteEntity));
+			FeedbackResponseStatistic statisticEntity = new FeedbackResponseStatistic(time, count, interval);
+			statistics.add(makeAttributes(statisticEntity));
 		}
 				
 		return statistics;
