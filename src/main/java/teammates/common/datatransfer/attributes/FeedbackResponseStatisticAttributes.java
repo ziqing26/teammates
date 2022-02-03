@@ -9,8 +9,6 @@ import java.util.Objects;
 import teammates.common.util.Const;
 import teammates.common.util.FieldValidator;
 import teammates.storage.entity.FeedbackResponseStatistic;
-import teammates.storage.entity.FeedbackResponseStatisticHour;
-import teammates.storage.entity.FeedbackResponseStatisticMinute;
 
 public class FeedbackResponseStatisticAttributes extends EntityAttributes<FeedbackResponseStatistic> {
     // Interval of statistic measured in seconds 
@@ -32,13 +30,7 @@ public class FeedbackResponseStatisticAttributes extends EntityAttributes<Feedba
 
 	@Override
     public FeedbackResponseStatistic toEntity() {
-        if (interval == Const.HOUR_IN_SECONDS) {
-            return new FeedbackResponseStatisticHour(time, count);
-        } else if (interval == Const.MINUTE_IN_SECONDS) {
-            return new FeedbackResponseStatisticMinute(time, count); 
-        } else {
-            throw new Error();
-        }
+        return new FeedbackResponseStatistic(time, count, interval);
 	}
 	
     /**

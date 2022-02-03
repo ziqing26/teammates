@@ -6,8 +6,7 @@ import java.util.List;
 
 import teammates.common.datatransfer.attributes.FeedbackResponseStatisticAttributes;
 import teammates.common.util.Const;
-import teammates.storage.api.FeedbackResponseStatisticsHourDb;
-import teammates.storage.api.FeedbackResponseStatisticsMinuteDb;
+import teammates.storage.api.FeedbackResponseStatisticsDb;
 
 /**
  * Handles operations related to feedback response statistics.
@@ -16,9 +15,7 @@ public class FeedbackResponseStatisticLogic {
 
 	private static final FeedbackResponseStatisticLogic instance = new FeedbackResponseStatisticLogic();
 
-	private final FeedbackResponseStatisticsMinuteDb feedbackResponseStatisticDb = FeedbackResponseStatisticsMinuteDb.inst();
-	private final FeedbackResponseStatisticsHourDb feedbackResponseStatisticHourDb = FeedbackResponseStatisticsHourDb.inst();
-	
+	private final FeedbackResponseStatisticsDb feedbackResponseStatisticDb = FeedbackResponseStatisticsDb.inst();
 
 	private FeedbackResponseStatisticLogic() {
 		// prevent initialization
@@ -34,9 +31,9 @@ public class FeedbackResponseStatisticLogic {
     public List<FeedbackResponseStatisticAttributes> getFeedbackResponseStatistics(Instant startTime, Instant endTime) {
 
 		if (Duration.between(startTime, endTime).compareTo(Const.FEEDBACK_STATISTIC_MINUTE_THRESHHOLD) <= 0) {
-			return feedbackResponseStatisticDb.getFeedbackResponseStatisticsInInterval(startTime, endTime);
+			return feedbackResponseStatisticDb.getFeedbackResponseStatisticsInInterval(startTime, endTime, Const.MINUTE_IN_SECONDS);
 		}
 
-		return feedbackResponseStatisticHourDb.getFeedbackResponseStatisticsInInterval(startTime, endTime);
+		return feedbackResponseStatisticDb.getFeedbackResponseStatisticsInInterval(startTime, endTime, Const.HOUR_IN_SECONDS);
     }
 }

@@ -13,8 +13,9 @@ import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.Query;
 
 import teammates.client.connector.DatastoreClient;
+import teammates.common.util.Const;
 import teammates.storage.entity.FeedbackResponse;
-import teammates.storage.entity.FeedbackResponseStatisticMinute;
+import teammates.storage.entity.FeedbackResponseStatistic;
 
 /*
 *   Handles getting of the stats
@@ -90,8 +91,8 @@ public static void generateStatisticsMinute() {
             .list()
             .size();
 
-            FeedbackResponseStatisticMinute newEntry = new FeedbackResponseStatisticMinute(
-            intervalRepresentativeTime.getEpochSecond(), count);
+            FeedbackResponseStatistic newEntry = new FeedbackResponseStatistic(
+            intervalRepresentativeTime.getEpochSecond(), count, Const.MINUTE_IN_SECONDS);
             ObjectifyService.ofy().save().entities(newEntry).now();
         } catch (Error e) {
             System.out.println(e);

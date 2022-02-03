@@ -2,18 +2,20 @@ package teammates.storage.entity;
 
 import java.time.Instant;
 
+import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.OnSave;
 import com.googlecode.objectify.annotation.Translate;
 
-public abstract class FeedbackResponseStatistic extends BaseEntity {
+@Entity
+public class FeedbackResponseStatistic extends BaseEntity {
 	@Id
     // Represents the middle of the minute
     private long time;
 
     @Index
-    private Integer count;
+    private int count;
 
     // Size of interval in seconds
     private final int interval;
@@ -32,7 +34,9 @@ public abstract class FeedbackResponseStatistic extends BaseEntity {
         this.interval = 0;
     }
 
-    public FeedbackResponseStatistic(int interval) {
+    public FeedbackResponseStatistic(long time, int count, int interval) {
+        this.time = time;
+        this.count = count;
         this.interval = interval;
     }
 

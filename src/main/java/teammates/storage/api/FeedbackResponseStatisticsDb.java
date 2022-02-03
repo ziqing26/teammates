@@ -4,31 +4,28 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import java.time.temporal.ChronoUnit;
+
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.cmd.LoadType;
 import com.googlecode.objectify.cmd.Query;
 
 import teammates.common.datatransfer.attributes.FeedbackResponseStatisticAttributes;
-import teammates.storage.entity.FeedbackResponseStatisticHour;
-import teammates.ui.webapi.FeedbackResponseStatisticsCountHourAction;
+import teammates.storage.entity.FeedbackResponseStatistic;
 
 /**
- * Handles CRUD operations for FeedbackResponseStatisticsHour.
- *
- * @see FeedbackResponseStatisticHour
- * @see FeedbackResponseStatisticsCountHourAction
+ * Handles statistics at 1 minute intervals for FeedbackResponse.
  */
-public class FeedbackResponseStatisticsHourDb {
-    private static final FeedbackResponseStatisticsHourDb instance = new FeedbackResponseStatisticsHourDb();
+public class FeedbackResponseStatisticsDb extends EntitiesDb<FeedbackResponseStatistic, FeedbackResponseStatisticAttributes> {
+	private static final FeedbackResponseStatisticsDb instance = new FeedbackResponseStatisticsDb();
 
-	public static FeedbackResponseStatisticsHourDb inst() {
+	public static FeedbackResponseStatisticsDb inst() {
         return instance;
     }
 
@@ -37,18 +34,18 @@ public class FeedbackResponseStatisticsHourDb {
 	 */
 	public boolean hasExistingEntities(FeedbackResponseStatisticAttributes feedbackResponseStatistic) {
 		return !load()
-                .filterKey(Key.create(FeedbackResponseStatisticHour.class, feedbackResponseStatistic.getTime()))
+                .filterKey(Key.create(FeedbackResponseStatistic.class, feedbackResponseStatistic.getTime()))
                 .list()
                 .isEmpty();
 	}
 
-	public LoadType<FeedbackResponseStatisticHour> load() {
-		return ofy().load().type(FeedbackResponseStatisticHour.class); 
+	public LoadType<FeedbackResponseStatistic> load() {
+		return ofy().load().type(FeedbackResponseStatistic.class); 
 	}
 	/**
      * Converts from entity to attributes.
      */
-	public FeedbackResponseStatisticAttributes makeAttributes(FeedbackResponseStatisticHour statistic) {
+	public FeedbackResponseStatisticAttributes makeAttributes(FeedbackResponseStatistic statistic) {
 		assert statistic != null;
 
         return FeedbackResponseStatisticAttributes.valueOf(statistic);
@@ -57,8 +54,8 @@ public class FeedbackResponseStatisticsHourDb {
     /**
      * Gets the feedback statistics.
      */
-    public List<FeedbackResponseStatisticAttributes> getFeedbackResponseStatisticsInInterval(Instant startTime, Instant endTime) {
-        // Query<FeedbackResponseStatisticHour> query = this.load().filterKey("time >= ", startTime)
+    public List<FeedbackResponseStatisticAttributes> getFeedbackResponseStatisticsInInterval(Instant startTime, Instant endTime, int interval) {
+        // Query<FeedbackResponseStatisticMinute> query = this.load().filterKey("time >= ", startTime)
         //         .filterKey("time <=", endTime);
 
         // List<FeedbackResponseStatisticAttributes> statistics = StreamSupport.stream(query.spliterator(), false)
@@ -68,12 +65,13 @@ public class FeedbackResponseStatisticsHourDb {
 		List<FeedbackResponseStatisticAttributes> statistics = new ArrayList<>();
 		long intervals = Duration.between(startTime, endTime).toMinutes();
 		for (long i = 0; i <= intervals; i++) {
-			long time = startTime.plus(i, ChronoUnit.HOURS).getEpochSecond();
+			long time = startTime.plus(i, ChronoUnit.MINUTES).getEpochSecond();
 			int count = rng.nextInt(100);
-			FeedbackResponseStatisticHour minuteEntity = new FeedbackResponseStatisticHour(time, count);
+			FeedbackResponseStatistic minuteEntity = new FeedbackResponseStatistic(time, count, interval);
 			statistics.add(makeAttributes(minuteEntity));
 		}
 				
 		return statistics;
     }
+	
 }

@@ -8,9 +8,10 @@ import java.time.temporal.ChronoUnit;
 
 import com.googlecode.objectify.ObjectifyService;
 
+import teammates.common.util.Const;
 import teammates.common.util.Logger;
 import teammates.storage.entity.FeedbackResponse;
-import teammates.storage.entity.FeedbackResponseStatisticMinute;
+import teammates.storage.entity.FeedbackResponseStatistic;
 
 /**
  *  Cron job: schedules feedback statistics count every minute.
@@ -37,8 +38,8 @@ public class FeedbackResponseStatisticsCountMinuteAction extends AdminOnlyAction
                     .list()
                     .size();
 
-            FeedbackResponseStatisticMinute newEntry = new FeedbackResponseStatisticMinute(
-                    intervalRepresentativeTime.getEpochSecond(), count);
+                    FeedbackResponseStatistic newEntry = new FeedbackResponseStatistic(
+                            intervalRepresentativeTime.getEpochSecond(), count, Const.MINUTE_IN_SECONDS);
             ObjectifyService.ofy().save().entities(newEntry).now();
         } catch (Exception e) {
             log.severe("Unexpected error", e);
