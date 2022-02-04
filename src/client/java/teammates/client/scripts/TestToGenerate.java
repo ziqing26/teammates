@@ -20,7 +20,7 @@ import teammates.storage.entity.FeedbackResponseStatisticsType;
 /*
 *   Handles getting of the stats
 */
-public class FergusTest extends DatastoreClient {
+public class TestToGenerate extends DatastoreClient {
 
     // Runs the test
     private static final int HOUR = 60 * 60;
@@ -40,32 +40,10 @@ public class FergusTest extends DatastoreClient {
 
     private static final String FEEDBACK_QUESTION_ID = "QuestionTest";
 
-    private FergusTest() {
+    private TestToGenerate() {
     }
 
 
-    // Start running updateForPastMinute for about 5 minutes first, then run this function
-    // This function will update for all time, and then write over some of the current data.
-/*     public static void updateForAlltime() {
-    Instant fnStartTime = Instant.now(); // Function should not overwrite this.
-    int CHUNK_BY = MONTH;
-    // StartTime put as 2010 first
-
-    Date date = new Date();
-
-    Query<FeedbackResponse> intialQuery = ObjectifyService.ofy().load().type(FeedbackResponse.class)
-            .project("createdAt");
-
-    Integer count = intialQuery.filter("createdAt >=", startTime).filter("createdAt <=", endTime).list()
-            .size();
-
-
-    // Chunk this, add to task queue to process it!
-    // I'm thinking chunk by MONTH
-
-
-}
- */
 public static void generateStatisticsMinute() {
         ZoneOffset currentOffset = OffsetDateTime.now().getOffset();
         Instant intervalEndTime = LocalDateTime.now()
@@ -189,7 +167,6 @@ public static void generateStatisticsMinute() {
         System.out.println("Start timer at " + (startTime));
         // new FergusTest().doOperationRemotely();
         // ObjectifyService.init();
-        new FergusTest().doOperation();
 
         long endTime = System.currentTimeMillis();
         System.out.println("That took " + (endTime - startTime) + " milliseconds or " +  ((endTime - startTime)/1000) + " seconds or " + (((endTime - startTime)/1000)/60 + " minutes.") );

@@ -14,6 +14,7 @@ import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.LoadType;
 
 import teammates.common.datatransfer.attributes.FeedbackResponseStatisticAttributes;
+import teammates.storage.entity.FeedbackResponse;
 import teammates.storage.entity.FeedbackResponseStatistic;
 import teammates.storage.entity.FeedbackResponseStatisticsType;
 
@@ -57,7 +58,7 @@ public class FeedbackResponseStatisticsDb extends EntitiesDb<FeedbackResponseSta
 	
 	public void countAndCreateStatisticsObject(Instant intervalStartTime, Instant intervalEndTime,
 			FeedbackResponseStatisticsType intervalType) {
-		int count = load()
+		int count = ofy().load().type(FeedbackResponse.class)
 			.project("createdAt")
 			.filter("createdAt >", adjustIntervalStartTime(intervalStartTime))
 			.filter("createdAt <", adjustIntervalEndTime(intervalEndTime))

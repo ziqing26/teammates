@@ -14,13 +14,14 @@ public class FeedbackResponseStatisticsCountWorkerAction extends AdminOnlyAction
     public JsonResult execute() {
         String startTimeString = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_RESPONSE_STATISTIC_STARTIME);
         String endTimeString = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_RESPONSE_STATISTIC_ENDTIME);
-        String intervalTypeString = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_RESPONSE_STATISTIC_ENDTIME);
+        String intervalTypeString = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_RESPONSE_STATISTIC_TYPE);
         
         Instant intervalStartTime = Instant.ofEpochMilli(Long.parseLong(startTimeString));
         Instant intervalEndTime = Instant.ofEpochMilli(Long.parseLong(endTimeString));
+        System.out.println(intervalTypeString);
+
         FeedbackResponseStatisticsType intervalType = Enum.valueOf(FeedbackResponseStatisticsType.class,
                 intervalTypeString);
-
         try {
             FeedbackResponseStatisticsDb
                 .inst()
