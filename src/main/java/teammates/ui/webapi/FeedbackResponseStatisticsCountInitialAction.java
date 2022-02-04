@@ -19,7 +19,7 @@ public class FeedbackResponseStatisticsCountInitialAction extends AdminOnlyActio
     public JsonResult execute() {
         int YEAR_TO_START_CREATION = 2010;
         ZoneOffset currentOffset = OffsetDateTime.now().getOffset();
-        LocalDateTime timeOfCreation = LocalDateTime.of(YEAR_TO_START_CREATION, 0, 0, 0, 0)
+        LocalDateTime timeOfCreation = LocalDateTime.of(YEAR_TO_START_CREATION, 0, 0, 0, 0);
         Instant startOfCreation = timeOfCreation.toInstant(currentOffset);
         // Create hour and minute
         Instant endOfCreation = LocalDateTime.now().toInstant(currentOffset);
