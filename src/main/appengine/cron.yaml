@@ -37,7 +37,3 @@ cron:
   schedule: 'every hour synchronized'
   timezone: 'Asia/Singapore'
   description: 'Updates the hourly count of feedback responses'
-# - url: '/auto/feedbackStatisticsVerify'
-#  schedule: 'every day synchronized'
-#  timezone: 'Asia/Singapore'
-#  description: 'Check and update the hourly and minute-count of feedback responses for the previous day'
