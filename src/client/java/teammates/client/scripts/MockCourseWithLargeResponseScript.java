@@ -134,17 +134,12 @@ public final class MockCourseWithLargeResponseScript extends DatastoreClient {
     private static Map<String, FeedbackSessionAttributes> generateFeedbackSessions() {
         Map<String, FeedbackSessionAttributes> feedbackSessions = new LinkedHashMap<>();
 
-        int hour = 60 * 60;
-        int week = hour * 24 * 7;
-        int month = week * 4;
-        int year = month * 12;
-
         FeedbackSessionAttributes session = FeedbackSessionAttributes
                 .builder(FEEDBACK_SESSION_NAME, COURSE_ID)
                 .withCreatorEmail(INSTRUCTOR_EMAIL)
-                .withStartTime(Instant.now().minusSeconds(year))
+                .withStartTime(Instant.now())
                 .withEndTime(Instant.now().plusSeconds(500))
-                .withSessionVisibleFromTime(Instant.now().minusSeconds(year))
+                .withSessionVisibleFromTime(Instant.now())
                 .withResultsVisibleFromTime(Instant.now())
                 .build();
 

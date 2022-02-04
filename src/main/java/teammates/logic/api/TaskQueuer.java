@@ -233,7 +233,7 @@ public class TaskQueuer {
             SendEmailRequest request = new SendEmailRequest(email);
 
             addDeferredTask(TaskQueue.SEND_EMAIL_QUEUE_NAME, TaskQueue.SEND_EMAIL_WORKER_URL,
-                    new HashMap<>(), request, emailDelayTimer);
+                            new HashMap<>(), request, emailDelayTimer);
         } catch (Exception e) {
             String emailSubject = email.getSubject();
             String emailSenderName = email.getSenderName();
@@ -242,14 +242,14 @@ public class TaskQueuer {
             String emailReplyToAddress = email.getReplyTo();
 
             log.severe("Error when adding email to task queue: " + e.getMessage() + "\n"
-                    + "Email sender: " + emailSender + "\n"
-                    + "Email sender name: " + emailSenderName + "\n"
-                    + "Email receiver: " + emailReceiver + "\n"
-                    + "Email subject: " + emailSubject + "\n"
-                    + "Email reply-to address: " + emailReplyToAddress);
+                       + "Email sender: " + emailSender + "\n"
+                       + "Email sender name: " + emailSenderName + "\n"
+                       + "Email receiver: " + emailReceiver + "\n"
+                       + "Email subject: " + emailSubject + "\n"
+                       + "Email reply-to address: " + emailReplyToAddress);
         }
     }
-    
+
     /**
      * Schedules for the search indexing of the student identified by {@code courseId} and {@code email}.
      *
