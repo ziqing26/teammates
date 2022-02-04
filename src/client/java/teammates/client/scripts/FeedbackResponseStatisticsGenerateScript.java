@@ -32,18 +32,18 @@ public class FeedbackResponseStatisticsGenerateScript extends DatastoreClient {
         int YEAR_TO_START_CREATION = 2022;  // In production, this will be 2010.
         ZoneOffset currentOffset = OffsetDateTime.now().getOffset();
         LocalDateTime timeOfCreation = LocalDateTime.of(YEAR_TO_START_CREATION, 1, 1, 0, 0);
-    
+
         Instant startOfCreation = timeOfCreation.toInstant(currentOffset);
         Instant endOfCreation = LocalDateTime.now().toInstant(currentOffset);
-    
+
         // Check how many hours in between.
         Duration timeDifference = Duration.between(startOfCreation, endOfCreation);
         Long hoursDifference = Math.abs(timeDifference.toHours());
         Long minutesDifference = Math.abs(timeDifference.toMinutes());
-        
+
         Instant startOfIntervalForHours = startOfCreation;
         Instant startOfIntervalForMinutes = startOfCreation;
-    
+
         TaskQueuer taskQueuer = TaskQueuer.inst();
         
         System.out.println("Scheduling...");
@@ -54,11 +54,12 @@ public class FeedbackResponseStatisticsGenerateScript extends DatastoreClient {
                 startOfIntervalForHours = startOfIntervalForHours.plusSeconds(Const.HOUR_IN_SECONDS);
         }
         
-        for (int i = 0; i < minutesDifference; i++) {
-            if (i % 10000 == 0) { System.out.println("Minutes " + i);}
-            taskQueuer.scheduleFeedbackResponseStatisticsCreation(startOfIntervalForMinutes,
-                FeedbackResponseStatisticsType.MINUTE);
-                startOfIntervalForMinutes = startOfIntervalForMinutes.plusSeconds(Const.MINUTE_IN_SECONDS);
-        }        
+/*         for (int i = 0; i < minutesDifference; i++) {
+    if (i % 10000 == 0) { System.out.println("Minutes " + i);}
+    taskQueuer.scheduleFeedbackResponseStatisticsCreation(startOfIntervalForMinutes,
+        FeedbackResponseStatisticsType.MINUTE);
+        startOfIntervalForMinutes = startOfIntervalForMinutes.plusSeconds(Const.MINUTE_IN_SECONDS);
+}        
+ */
     }
 }

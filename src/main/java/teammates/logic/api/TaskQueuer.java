@@ -27,7 +27,7 @@ public class TaskQueuer {
     private static final Logger log = Logger.getLogger();
 
     private static final TaskQueuer instance = new TaskQueuer();
-    private final TaskQueueService service;
+    private TaskQueueService service;
 
     TaskQueuer() {
         if (Config.isDevServer()) {
@@ -50,9 +50,16 @@ public class TaskQueuer {
     }
 
     void addDeferredTask(String queueName, String workerUrl, Map<String, String> paramMap, Object requestBody,
-                         long countdownTime) {
+            long countdownTime) {
+        service = new LocalTaskQueueService();
         TaskWrapper task = new TaskWrapper(queueName, workerUrl, paramMap, requestBody);
         service.addDeferredTask(task, countdownTime);
+    }
+    
+    void addCloudTask(String queueName, String workerUrl, Map<String, String> paramMap, Object requestBody) {
+        service = new GoogleCloudTasksService();
+        TaskWrapper task = new TaskWrapper(queueName, workerUrl, paramMap, requestBody);
+        service.addDeferredTask(task, 0);
     }
 
     // The following methods are the actual API methods to be used by the client classes
@@ -273,8 +280,8 @@ public class TaskQueuer {
         paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_ENDTIME, Long.toString(endOfInterval.toEpochMilli()));
         paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_TYPE, intervalType.getValue());
 
-        addTask(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME,
-                TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL,
-                paramMap, null);
+        addCloudTask(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME,
+                    TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL,
+                    paramMap, null);
     }
 }

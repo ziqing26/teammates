@@ -19,7 +19,7 @@ import teammates.storage.entity.FeedbackResponseStatistic;
 import teammates.storage.entity.FeedbackResponseStatisticsType;
 
 /**
- * Handles statistics at 1 minute intervals for FeedbackResponse.
+ * Handles statistics at intervals for FeedbackResponse.
  */
 public class FeedbackResponseStatisticsDb extends EntitiesDb<FeedbackResponseStatistic, FeedbackResponseStatisticAttributes> {
 	private static final FeedbackResponseStatisticsDb instance = new FeedbackResponseStatisticsDb();
@@ -45,14 +45,14 @@ public class FeedbackResponseStatisticsDb extends EntitiesDb<FeedbackResponseSta
 	/**
 	 * Adjusts support > filter operation for projection queries
 	 */
-	public Instant adjustIntervalStartTime(Instant startOfInterval) {
+	public static Instant adjustIntervalStartTime(Instant startOfInterval) {
 		return startOfInterval.minusMillis(1);
 	}
 
 	/**
 	 * Adjusts to support < filter operation for projection queries
 	 */
-	public Instant adjustIntervalEndTime(Instant endOfInterval) {
+	public static Instant adjustIntervalEndTime(Instant endOfInterval) {
 		return endOfInterval.plusMillis(1);
 	}
 	
@@ -64,7 +64,7 @@ public class FeedbackResponseStatisticsDb extends EntitiesDb<FeedbackResponseSta
 			.filter("createdAt <", adjustIntervalEndTime(intervalEndTime))
 			.list()
 			.size();
-	
+		System.out.println(count);
 		FeedbackResponseStatistic newEntry = new FeedbackResponseStatistic(
 				intervalStartTime.getEpochSecond(), count, intervalType);
 		ObjectifyService.ofy().save().entities(newEntry).now();

@@ -1,6 +1,6 @@
 package teammates.client.scripts;
 
-import java.nio.file.Paths;
+import java.io.Closeable;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -10,13 +10,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.cloud.datastore.DatastoreOptions;
-import com.google.cloud.datastore.testing.LocalDatastoreHelper;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.Query;
 
 import teammates.client.connector.DatastoreClient;
+import teammates.client.util.ClientProperties;
 import teammates.common.util.Config;
 import teammates.common.util.Const;
 import teammates.logic.core.LogicStarter;
@@ -144,7 +144,7 @@ public class FergusTest extends DatastoreClient {
 
     public static void generateResponses() {
         int STARTING_ID = 1;
-        int NUMBER_OF_FEEDBACK_QUESTIONS = 100;
+        int NUMBER_OF_FEEDBACK_QUESTIONS = 1000;
         int CHUNKER = 10; // Prevent Java heap overflow
         for (int i = 0; i < CHUNKER; i++) {
             FeedbackResponse[] arr = new FeedbackResponse[NUMBER_OF_FEEDBACK_QUESTIONS / CHUNKER];
@@ -183,49 +183,106 @@ public class FergusTest extends DatastoreClient {
         return feedbackQuestionId + '%' + giver;
     }
 
+    public static void countAndCreateStatisticsObject(Instant intervalStartTime, Instant intervalEndTime,
+    FeedbackResponseStatisticsType intervalType) {
+        int count = ObjectifyService.ofy().load().type(FeedbackResponse.class)
+            .project("createdAt")
+            .filter("createdAt >", FeedbackResponseStatisticsDb.adjustIntervalStartTime(intervalStartTime))
+            .filter("createdAt <", FeedbackResponseStatisticsDb.adjustIntervalEndTime(intervalEndTime))
+            .list()
+            .size();
+        System.out.println(count);
+        FeedbackResponseStatistic newEntry = new FeedbackResponseStatistic(
+                intervalStartTime.getEpochSecond(), count, intervalType);
+        ObjectifyService.ofy().save().entities(newEntry).now();
+    }
+
     @Override
     protected void doOperation() {
-        getIntervalResponseCount(); //
-        getTotalResponseCount();
+        // generateResponses();
+        // countAndCreateStatisticsObject();
+        // getIntervalResponseCount(); //
+        // getTotalResponseCount();
         // getTotalStatisticsObjectCount();
 
-        // generateResponses();
         // generateResponsesNow();
         // generateStatisticsObjects();
         // deleteAllResponses();
         // System.out.println(ZonedDateTime().now());
     }
 
+    protected void doFergusOperationRemotely(Instant intervalStartTime, Instant intervalEndTime,
+    FeedbackResponseStatisticsType intervalType) {
+
+        String appUrl = ClientProperties.TARGET_URL.replaceAll("^https?://", "");
+        String appDomain = appUrl.split(":")[0];
+        int appPort = appUrl.contains(":") ? Integer.parseInt(appUrl.split(":")[1]) : 443;
+
+        System.out.println("--- Starting remote operation ---");
+        System.out.println("Going to connect to:" + appDomain + ":" + appPort);
+
+        DatastoreOptions.Builder builder = DatastoreOptions.newBuilder().setProjectId(Config.APP_ID);
+        if (ClientProperties.isTargetUrlDevServer()) {
+            builder.setHost(ClientProperties.TARGET_URL);
+        }
+        ObjectifyService.init(new ObjectifyFactory(builder.build().getService()));
+        OfyHelper.registerEntityClasses();
+        Closeable objectifySession = ObjectifyService.begin();
+        LogicStarter.initializeDependencies();
+
+        doFergusOperation(intervalStartTime, intervalEndTime,
+                intervalType);
+        try { 
+            objectifySession.close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        System.out.println("--- Remote operation completed ---");
+    }
+
+    protected void doFergusOperation(Instant intervalStartTime, Instant intervalEndTime,
+            FeedbackResponseStatisticsType intervalType) {
+        countAndCreateStatisticsObject(intervalStartTime, intervalEndTime, intervalType);
+    }
+
+    public static void fergusMain(Instant intervalStartTime, Instant intervalEndTime,
+            FeedbackResponseStatisticsType intervalType) {
+            new FergusTest().doFergusOperationRemotely(intervalStartTime, intervalEndTime, intervalType);
+    }
+    
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
         System.out.println("Start timer at " + (startTime));
-        // new FergusTest().doOperationRemotely();
-        // ObjectifyService.init();
-
-        LocalDatastoreHelper localDatastoreHelper = LocalDatastoreHelper.newBuilder()
-                .setConsistency(0.9) // default setting
-                .setPort(Config.APP_LOCALDATASTORE_PORT)
-                .setStoreOnDisk(true)
-                .setDataDir(Paths.get("datastore-dev/datastore"))
-                .build();
-                try {
-                    localDatastoreHelper.start();
-                    DatastoreOptions options = localDatastoreHelper.getOptions();
-                    ObjectifyService.init(new ObjectifyFactory(
-                        options.getService()
-                    ));
-                    ObjectifyService.begin();
-                    OfyHelper.registerEntityClasses();
-                    LogicStarter.initializeDependencies();
-                    System.out.println(localDatastoreHelper.getGcdPath());
-                    System.out.println(localDatastoreHelper.isStoreOnDisk());
-                    new FergusTest().doOperation();
-                } catch (Exception e) {
-                    System.out.println(e);
-                }
-
+        new FergusTest().doOperationRemotely();
+        /*         LocalDatastoreHelper localDatastoreHelper = LocalDatastoreHelper.newBuilder()
+        .setConsistency(0.9) // default setting
+        .setPort(Config.APP_LOCALDATASTORE_PORT)
+        .setStoreOnDisk(true)
+        .setDataDir(Paths.get("datastore-dev/datastore"))
+        .build();
+        try {
+            localDatastoreHelper.start();
+            DatastoreOptions options = localDatastoreHelper.getOptions();
+            ObjectifyService.init(new ObjectifyFactory(
+        options.getService()
+            ));
+            ObjectifyService.begin();
+            OfyHelper.registerEntityClasses();
+            LogicStarter.initializeDependencies();
+            Closeable objectifySession = ObjectifyService.begin();
+            System.out.println(localDatastoreHelper.getGcdPath());
+            System.out.println(localDatastoreHelper.isStoreOnDisk());
+            new FergusTest().doOperation();
+        } catch (Exception e) {
+            System.out.println(e);
+        } finally {
+            objectifySession.close();
+        }
+        }
+         */
         long endTime = System.currentTimeMillis();
-        System.out.println("That took " + (endTime - startTime) + " milliseconds or " +  ((endTime - startTime)/1000) + " seconds or " + (((endTime - startTime)/1000)/60 + " minutes.") );
+        System.out.println("That took " + (endTime - startTime) + " milliseconds or " + ((endTime - startTime) / 1000)
+                + " seconds or " + (((endTime - startTime) / 1000) / 60 + " minutes."));
     }
 
 }

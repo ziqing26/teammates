@@ -2,6 +2,7 @@ package teammates.ui.webapi;
 
 import java.time.Instant;
 
+import teammates.common.util.Config;
 import teammates.common.util.Const;
 import teammates.common.util.Logger;
 import teammates.storage.api.FeedbackResponseStatisticsDb;
@@ -25,9 +26,11 @@ public class FeedbackResponseStatisticsCountWorkerAction extends AdminOnlyAction
         try {
             FeedbackResponseStatisticsDb
                 .inst()
-                .countAndCreateStatisticsObject(intervalStartTime, intervalEndTime, intervalType);
+                    .countAndCreateStatisticsObject(intervalStartTime, intervalEndTime, intervalType);
+                
         } catch (Exception e) {
             log.severe("Unexpected error", e);
+            return new JsonResult("Failed!");
         }
         return new JsonResult("Sucess!");
     }
