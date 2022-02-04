@@ -20,8 +20,8 @@ export class ResponseStatisticsService {
 
   searchForStatistics(queryParams: Partial<QueryLogsParams>): Observable<FeedbackResponseStatistics> {
     const paramMap: Record<string, string> = {
-      fssstarttime: `${queryParams.startTime || -1}`,
-      fssendtime: `${queryParams.endTime || -1}`,
+      frsstarttime: `${queryParams.startTime || -1}`,
+      frsendtime: `${queryParams.endTime || -1}`,
     };
     return this.httpRequestService.get(ResourceEndpoints.RESPONSE_STATISTICS, paramMap);
   }

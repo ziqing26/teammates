@@ -1,5 +1,6 @@
 import { Component, ElementRef, Input, OnChanges, OnInit } from '@angular/core';
 import * as d3 from 'd3';
+// import moment from 'moment-timezone';
 import { StatisticsChartDataModel } from './ststistics-chart-model';
 
 @Component({
@@ -26,7 +27,7 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
 
   private format: any = d3.timeFormat("%Y-%m-%d");
 
-//   private dynamicDateFormat = timeFormat([
+//   private dynamicDateFormat = d3.timeFormat([
 //     [d3.time.format("%Y"), function() { return true; }],// <-- how to display when Jan 1 YYYY
 //     [d3.time.format("%b %Y"), function(d) { return d.getMonth(); }],
 //     [function(){return "";}, function(d) { return d.getDate() != 1; }]
@@ -36,6 +37,7 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
   constructor(private chartElem: ElementRef) { }
 
   ngOnInit(): void {
+    // this.data.map((d: StatisticsChartDataModel) => { return {timestamp: this.format(d.timestamp), count: d.numberOfTimes}});
     this.createSvg();
     this.drawChart();
   }
@@ -51,13 +53,16 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
     this.height = (document.getElementById('linechart') as HTMLInputElement).offsetHeight - (this.margin * 2);
     
     this.svg = d3
-      .select(this.chartElem.nativeElement)
-      .select('.linechart')
+      .select('figure#linechart')
       .append('svg')
-      .attr('height', this.height);
+      .attr('width', this.width + (this.margin * 2))
+      .attr('height', this.height + (this.margin * 2));
+      // .renderArea(true)
+      // .mouseZoomable(true);
 
     this.svgInner = this.svg
       .append('g')
+      .attr('class', 'chart')
       .style('transform', 'translate(' + this.margin + 'px, ' + this.margin + 'px)');
 
     console.log('width', this.width);
@@ -80,10 +85,11 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
     this.yScale = d3
       .scaleLinear()
       .domain([0, d3.max(this.data, (d: StatisticsChartDataModel) => d.numberOfTimes)])
-      .range([0, this.height - 2 * this.margin]);
+      .range([this.height - 2 * this.margin, 0]);
 
     this.xScale = d3.scaleTime()
-      .domain(d3.extent(this.data, (d: StatisticsChartDataModel) => d.timestamp));
+      .domain(d3.extent(this.data, (d: StatisticsChartDataModel) => d.timestamp))
+      .rangeRound([0, this.width]);
 
     this.yAxis = this.svgInner
       .append('g')
@@ -102,23 +108,6 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
       .style('fill', 'none')
       .style('stroke', 'steelblue')
       .style('stroke-width', '2px');
-    // this.xScale = d3.scaleTime()
-    //   .domain(this.data.map((d: StatisticsChartDataModel) => new Date(d.timestamp)))
-    //   .range([0, this.width])
-    //   .padding(0.2);
-
-    // this.yScale = d3.scaleLinear()
-    //   .domain([0, d3.max(this.data, (d: StatisticsChartDataModel) => d.numberOfTimes)])
-    //   .range([this.height, 0]);
-
-    // this.svg.append('g')
-    //   .attr('class', 'axis axis-x')
-    //   .attr('transform', `translate(${this.margin}, ${this.margin + this.height})`);
-
-    // this.yAxis = this.svg.append('g')
-    //   .attr('class', 'axis axis-y')
-    //   .attr('transform', `translate(${this.margin}, ${this.margin})`)
-    //   .call(d3.axisLeft(this.yScale));
   }
 
   private drawChart(): void {
@@ -139,8 +128,8 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
 
     const line = d3.line()
       .x((d:any) => d[0])
-      .y((d: any) => d[1])
-      .curve(d3.curveMonotoneX);
+      .y((d: any) => d[1]);
+      // .curve(d3.curveMonotoneX);
 
     const points: [number, number][] = this.data.map((d: StatisticsChartDataModel) => [
       this.xScale(d.timestamp),
@@ -148,62 +137,7 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
     ]);
 
     this.lineGroup.attr('d', line(points));
-    // this.xScale.domain(this.data.map((d: StatisticsChartDataModel) => new Date(d.timestamp)));
-    // this.yScale.domain([0, d3.max(this.data, (d: StatisticsChartDataModel) => d.numberOfTimes)]);
-    // this.yAxis.call(d3.axisLeft(this.yScale));
 
-    // const tooltip: any = d3.select('body')
-    //   .append('div')
-    //   .style('position', 'absolute')
-    //   .style('z-index', '10')
-    //   .style('visibility', 'hidden')
-    //   .style('padding', '10px')
-    //   .style('background', '#000')
-    //   .style('border-radius', '5px')
-    //   .style('color', '#fff');
-
-    //   const update: any = this.chart.selectAll('.linechart').data(this.data);
-
-    //   // remove exiting bars
-    //   update.exit().remove();
-  
-    //   this.chart.selectAll('.linechart')
-    //     .attr('x', (d: StatisticsChartDataModel) => this.xScale(new Date(d.timestamp)))
-    //     .attr('y', (d: StatisticsChartDataModel) => this.yScale(d.numberOfTimes))
-    //     .attr('height', (d: StatisticsChartDataModel) => this.height - this.yScale(d.numberOfTimes))
-    //     .attr('width', this.xScale.bandwidth());
-  
-    //   update
-    //     .enter()
-    //     .append('rect')
-    //     .attr('class', 'linechart')
-    //     .attr('x', (d: StatisticsChartDataModel) => this.xScale(new Date(d.timestamp)))
-    //     .attr('y', (d: StatisticsChartDataModel) => this.yScale(d.numberOfTimes))
-    //     .attr('height', (d: StatisticsChartDataModel) => this.height - this.yScale(d.numberOfTimes))
-    //     .attr('width', this.xScale.bandwidth())
-    //     .style('fill', 'steelblue')
-    //     .on('mouseover', (d: StatisticsChartDataModel) =>
-    //       tooltip
-    //         .html(`Date time: ${new Date(d.timestamp).toString()} <br> Frequency: ${d.numberOfTimes}`)
-    //         .style('visibility', 'visible'))
-    //     .on('mousemove', () => {
-    //       const top: number = d3.event.pageY - 10;
-    //       const left: number = d3.event.pageX + 10;
-    //       tooltip
-    //         .style('top', `${top}px`)
-    //         .style('left', `${left}px`);
-    //     })
-    //     .on('mouseout', () => tooltip.html('').style('visibility', 'hidden'));
-
-    // this.svg.append("path")
-    //     .datum(this.data)
-    //     .attr("fill", "none")
-    //     .attr("stroke", "steelblue")
-    //     .attr("stroke-width", 1.5)
-    //     .attr("d", d3.line()
-    //       .x((d: any) => this.xScale(d3.timeParse("%Y-%m-%d")(d.timestamp)))
-    //       .y((d: any) => this.yScale(d.numberOfTimes))
-    //       )
   }
 
 }

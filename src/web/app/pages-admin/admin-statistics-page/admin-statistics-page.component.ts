@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { ResponseStatisticsService } from 'src/web/services/response-statistics.service';
 import { StatusMessageService } from 'src/web/services/status-message.service';
+import { threadId } from 'worker_threads';
 import { TimezoneService } from '../../../services/timezone.service';
 import {
   QueryLogsParams,
@@ -117,14 +118,23 @@ export class AdminStatisticsPageComponent implements OnInit {
   }
   
   private processStatisticsForGraph(stats: FeedbackResponseStatistic[]): void {
-    const sourceToFrequencyMap: Map<number, number> = stats
-      .reduce((acc: Map<number, number>, stats: FeedbackResponseStatistic) =>
-        acc.set(stats.time, (acc.get(stats.time) || 0)),
-        new Map<number, number>());
+
+    const sourceToFrequencyMap: Map<string, number> = stats
+      .reduce((acc: Map<string, number>, stats: FeedbackResponseStatistic) => {
+          const accurateDate: Date = new Date(stats.time);
+          accurateDate.setSeconds(0, 0);
+          const dateString: string = accurateDate.toDateString();
+          const accCount = acc.get(dateString) || 0;
+          return acc.set(dateString, (accCount + stats.count))
+        },
+        new Map<string, number>());
     console.log("sourceToFrequencyMap", sourceToFrequencyMap)
-    sourceToFrequencyMap.forEach((value: number, key: number) => {
-      this.chartResult.push({ timestamp: key, numberOfTimes: value });
+    
+    sourceToFrequencyMap.forEach((value: number, key: string) => {
+      this.chartResult.push({ timestamp: new Date(key), numberOfTimes: value });
     });
+
+    
   }
 
 }
