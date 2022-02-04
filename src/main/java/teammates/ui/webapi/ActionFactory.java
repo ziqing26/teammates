@@ -151,6 +151,8 @@ public final class ActionFactory {
                 FeedbackSessionRemindParticularUsersEmailWorkerAction.class);
         map(TaskQueue.FEEDBACK_SESSION_UNPUBLISHED_EMAIL_WORKER_URL, POST,
                 FeedbackSessionUnpublishedEmailWorkerAction.class);
+        map(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL, POST,
+                FeedbackResponseStatisticsCountWorkerAction.class);
         map(TaskQueue.INSTRUCTOR_COURSE_JOIN_EMAIL_WORKER_URL, POST, InstructorCourseJoinEmailWorkerAction.class);
         map(TaskQueue.SEND_EMAIL_WORKER_URL, POST, SendEmailWorkerAction.class);
         map(TaskQueue.STUDENT_COURSE_JOIN_EMAIL_WORKER_URL, POST, StudentCourseJoinEmailWorkerAction.class);

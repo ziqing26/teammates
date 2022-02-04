@@ -6,12 +6,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
-import com.googlecode.objectify.ObjectifyService;
-
-import teammates.common.util.Const;
 import teammates.common.util.Logger;
-import teammates.storage.entity.FeedbackResponse;
-import teammates.storage.entity.FeedbackResponseStatistic;
+import teammates.storage.api.FeedbackResponseStatisticsDb;
+import teammates.storage.entity.FeedbackResponseStatisticsType;
 
 /**
  *  Cron job: schedules feedback statistics count every hour.
@@ -28,20 +25,12 @@ public class FeedbackResponseStatisticsCountHourAction extends AdminOnlyAction {
                                     .withSecond(0)
                                     .toInstant(currentOffset);
 
-        Instant intervalRepresentativeTime = intervalEndTime.minusSeconds(30 * 60);
-        Instant intervalStartTime = intervalRepresentativeTime.minusSeconds(30 * 60).minusMillis(1);
+        Instant intervalStartTime = intervalEndTime.minusSeconds(60 * 60);
         try {
-            int count = ObjectifyService.ofy().load()
-                    .type(FeedbackResponse.class)
-                    .project("createdAt")
-                    .filter("createdAt >", intervalStartTime)
-                    .filter("createdAt <", intervalEndTime)
-                    .list()
-                    .size();
-
-            FeedbackResponseStatistic newEntry = new FeedbackResponseStatistic(
-                    intervalRepresentativeTime.getEpochSecond(), count, Const.HOUR_IN_SECONDS);
-            ObjectifyService.ofy().save().entities(newEntry).now();
+            FeedbackResponseStatisticsDb
+                .inst()
+                    .countAndCreateStatisticsObject(intervalStartTime, intervalEndTime,
+                            FeedbackResponseStatisticsType.HOUR);
         } catch (Exception e) {
             log.severe("Unexpected error", e);
         }

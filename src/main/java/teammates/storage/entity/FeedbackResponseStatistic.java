@@ -11,14 +11,14 @@ import com.googlecode.objectify.annotation.Translate;
 @Entity
 public class FeedbackResponseStatistic extends BaseEntity {
 	@Id
-    // Represents the middle of the minute
+    // Represents the start of the interval
     private long time;
 
     @Index
     private int count;
 
-    // Size of interval in seconds
-    private final int interval;
+    // Represents the size of interval
+    private FeedbackResponseStatisticsType intervalType;
 
     @Translate(InstantTranslatorFactory.class)
     private Instant createdAt;
@@ -29,15 +29,12 @@ public class FeedbackResponseStatistic extends BaseEntity {
     @SuppressWarnings("unused")
     protected FeedbackResponseStatistic() {
         // required by Objectify
-        
-        // used to remove compilation error
-        this.interval = 0;
     }
 
-    public FeedbackResponseStatistic(long time, int count, int interval) {
+    public FeedbackResponseStatistic(long time, int count, FeedbackResponseStatisticsType intervalType) {
         this.time = time;
         this.count = count;
-        this.interval = interval;
+        this.intervalType = intervalType;
     }
 
     public long getTime() {
@@ -60,8 +57,8 @@ public class FeedbackResponseStatistic extends BaseEntity {
         return createdAt;
     }
     
-    public int getInterval() {
-        return interval;
+    public FeedbackResponseStatisticsType getIntervalType() {
+        return intervalType;
     }
 	
 	/**

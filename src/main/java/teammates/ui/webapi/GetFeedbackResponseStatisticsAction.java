@@ -16,7 +16,7 @@ class GetFeedbackResponseStatisticsAction extends AdminOnlyAction {
     public JsonResult execute() {
         List<FeedbackResponseStatisticAttributes> feedbackResponseStatistics;
         
-        String startTimeString = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_STATISTIC_STARTTIME);
+        String startTimeString = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_RESPONSE_STATISTIC_STARTIME);
         long startTime;
         try {
             startTime = Long.parseLong(startTimeString);
@@ -29,7 +29,7 @@ class GetFeedbackResponseStatisticsAction extends AdminOnlyAction {
             throw new InvalidHttpParameterException("Invalid startTime parameter", e);
         }
 
-        String endTimeString = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_STATISTIC_ENDTIME);
+        String endTimeString = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_RESPONSE_STATISTIC_ENDTIME);
         long endTime;
         try {
             endTime = Long.parseLong(endTimeString);

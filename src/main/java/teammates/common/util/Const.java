@@ -120,8 +120,9 @@ public final class Const {
         public static final String FEEDBACK_SESSION_LOG_TYPE = "fsltype";
         public static final String FEEDBACK_SESSION_LOG_STARTTIME = "fslstarttime";
         public static final String FEEDBACK_SESSION_LOG_ENDTIME = "fslendtime";
-        public static final String FEEDBACK_SESSION_STATISTIC_STARTTIME = "fssstarttime";
-        public static final String FEEDBACK_SESSION_STATISTIC_ENDTIME = "fssendtime";
+        public static final String FEEDBACK_RESPONSE_STATISTIC_STARTIME = "frsstarttime";
+        public static final String FEEDBACK_RESPONSE_STATISTIC_ENDTIME = "frsendtime";
+        public static final String FEEDBACK_RESPONSE_STATISTIC_TYPE = "frstype";
 
         public static final String FEEDBACK_QUESTION_ID = "questionid";
 

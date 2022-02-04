@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import teammates.common.util.Config;
+import teammates.common.util.Const;
 import teammates.common.util.Const.ParamsNames;
 import teammates.common.util.Const.TaskQueue;
 import teammates.common.util.EmailWrapper;
@@ -14,6 +15,7 @@ import teammates.common.util.TaskWrapper;
 import teammates.logic.core.GoogleCloudTasksService;
 import teammates.logic.core.LocalTaskQueueService;
 import teammates.logic.core.TaskQueueService;
+import teammates.storage.entity.FeedbackResponseStatisticsType;
 import teammates.ui.request.FeedbackSessionRemindRequest;
 import teammates.ui.request.SendEmailRequest;
 
@@ -253,11 +255,23 @@ public class TaskQueuer {
     /**
      * Schedules for the search indexing of the student identified by {@code courseId} and {@code email}.
      *
-     * @param courseId the course ID of the student
-     * @param email the email of the student
+     * @param startOfCreation time of start of creation
+     * @param feedbackResponseType the interval length of the feedback response statistic
      */
-    public void scheduleFeedbackResponseStatisticsCreation(Instant startOfCreation) {
+    public void scheduleFeedbackResponseStatisticsCreation(Instant startOfInterval, 
+        FeedbackResponseStatisticsType intervalType) {
         Map<String, String> paramMap = new HashMap<>();
+
+        Instant endOfInterval;
+        if (intervalType == FeedbackResponseStatisticsType.HOUR) {
+            endOfInterval = startOfInterval.plusSeconds(Const.HOUR_IN_SECONDS);
+        } else {
+            endOfInterval = startOfInterval.plusSeconds(Const.MINUTE_IN_SECONDS);
+        }
+        
+        paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_STARTIME, Long.toString(startOfInterval.toEpochMilli()));
+        paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_ENDTIME, Long.toString(endOfInterval.toEpochMilli()));
+        paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_TYPE, intervalType.getValue());
 
         addTask(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME,
                 TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL,
