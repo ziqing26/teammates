@@ -1,5 +1,11 @@
 package teammates.ui.webapi;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
 import teammates.common.util.Logger;
 
 /**
@@ -11,26 +17,29 @@ public class FeedbackResponseStatisticsCountInitialAction extends AdminOnlyActio
 
     @Override
     public JsonResult execute() {
-/*         String feedbackSessionName = getNonNullRequestParamValue(ParamsNames.FEEDBACK_SESSION_NAME);
-        String courseId = getNonNullRequestParamValue(ParamsNames.COURSE_ID);
+        int YEAR_TO_START_CREATION = 2010;
+        ZoneOffset currentOffset = OffsetDateTime.now().getOffset();
+        LocalDateTime timeOfCreation = LocalDateTime.of(YEAR_TO_START_CREATION, 0, 0, 0, 0)
+        Instant startOfCreation = timeOfCreation.toInstant(currentOffset);
+        // Create hour and minute
+        Instant endOfCreation = LocalDateTime.now().toInstant(currentOffset);
 
-        FeedbackSessionAttributes session = logic.getFeedbackSession(feedbackSessionName, courseId);
-        if (session == null) {
-            log.severe("Feedback session object for feedback session name: " + feedbackSessionName
-                       + " for course: " + courseId + " could not be fetched.");
-            return new JsonResult("Failure");
+        // Check how many hours in between.
+        Duration timeDifference = Duration.between(startOfCreation, endOfCreation);
+        Long hoursDifference = Math.abs(timeDifference.toHours());
+        Long minutesDifference = Math.abs(timeDifference.toMinutes());
+        
+        Instant startOfTimeForHours = startOfCreation;
+        for (int i = 0; i < hoursDifference; i++) {
+            
+            taskQueuer.scheduleFeedbackResponseStatisticsCreation(startOfCreation);
         }
-        List<EmailWrapper> emailsToBeSent = emailGenerator.generateFeedbackSessionUnpublishedEmails(session);
-        try {
-            taskQueuer.scheduleEmailsForSending(emailsToBeSent);
-            logic.updateFeedbackSession(
-                    FeedbackSessionAttributes
-                            .updateOptionsBuilder(session.getFeedbackSessionName(), session.getCourseId())
-                            .withSentPublishedEmail(false)
-                            .build());
-        } catch (Exception e) {
-            log.severe("Unexpected error", e);
+
+        Instant startOfTimeForMinutes = startOfCreation;
+        for (int i = 0; i < minutesDifference; i++) {
+            taskQueuer.scheduleFeedbackResponseStatisticsCreation(startOfCreation);
         }
- */     return new JsonResult("Successful");
+
+      return new JsonResult("Successful");
     }
 }

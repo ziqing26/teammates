@@ -400,6 +400,11 @@ public final class Const {
         public static final String FEEDBACK_SESSION_UNPUBLISHED_EMAIL_WORKER_URL =
                 URI_PREFIX + "/feedbackSessionUnpublishedEmail";
 
+        public static final String FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME = 
+                "/feedback-response-statistics-creation-queue";
+        public static final String FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL =
+                URI_PREFIX + "/feedbackResponseStatisticsCreationQueue";
+
         public static final String INSTRUCTOR_COURSE_JOIN_EMAIL_QUEUE_NAME = "instructor-course-join-email-queue";
         public static final String INSTRUCTOR_COURSE_JOIN_EMAIL_WORKER_URL = URI_PREFIX + "/instructorCourseJoinEmail";
 

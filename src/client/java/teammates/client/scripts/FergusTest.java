@@ -45,8 +45,8 @@ public class FergusTest extends DatastoreClient {
     public static void updateForPastMinute() {  // Function will be called 5 seconds after the minute passes.
         Query<FeedbackResponse> intialQuery = ObjectifyService.ofy().load().type(FeedbackResponse.class)
                 .project("createdAt");
-        Instant.now().get
-
+/*         Instant.now().get
+ */
     }
 
     // Start running updateForPastMinute for about 5 minutes first, then run this function
