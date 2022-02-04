@@ -210,45 +210,6 @@ public class FergusTest extends DatastoreClient {
         // deleteAllResponses();
         // System.out.println(ZonedDateTime().now());
     }
-
-    protected void doFergusOperationRemotely(Instant intervalStartTime, Instant intervalEndTime,
-    FeedbackResponseStatisticsType intervalType) {
-
-        String appUrl = ClientProperties.TARGET_URL.replaceAll("^https?://", "");
-        String appDomain = appUrl.split(":")[0];
-        int appPort = appUrl.contains(":") ? Integer.parseInt(appUrl.split(":")[1]) : 443;
-
-        System.out.println("--- Starting remote operation ---");
-        System.out.println("Going to connect to:" + appDomain + ":" + appPort);
-
-        DatastoreOptions.Builder builder = DatastoreOptions.newBuilder().setProjectId(Config.APP_ID);
-        if (ClientProperties.isTargetUrlDevServer()) {
-            builder.setHost(ClientProperties.TARGET_URL);
-        }
-        ObjectifyService.init(new ObjectifyFactory(builder.build().getService()));
-        OfyHelper.registerEntityClasses();
-        Closeable objectifySession = ObjectifyService.begin();
-        LogicStarter.initializeDependencies();
-
-        doFergusOperation(intervalStartTime, intervalEndTime,
-                intervalType);
-        try { 
-            objectifySession.close();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        System.out.println("--- Remote operation completed ---");
-    }
-
-    protected void doFergusOperation(Instant intervalStartTime, Instant intervalEndTime,
-            FeedbackResponseStatisticsType intervalType) {
-        countAndCreateStatisticsObject(intervalStartTime, intervalEndTime, intervalType);
-    }
-
-    public static void fergusMain(Instant intervalStartTime, Instant intervalEndTime,
-            FeedbackResponseStatisticsType intervalType) {
-            new FergusTest().doFergusOperationRemotely(intervalStartTime, intervalEndTime, intervalType);
-    }
     
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
