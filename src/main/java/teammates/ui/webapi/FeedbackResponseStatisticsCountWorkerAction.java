@@ -18,10 +18,10 @@ public class FeedbackResponseStatisticsCountWorkerAction extends AdminOnlyAction
         
         Instant intervalStartTime = Instant.ofEpochMilli(Long.parseLong(startTimeString));
         Instant intervalEndTime = Instant.ofEpochMilli(Long.parseLong(endTimeString));
-        System.out.println(intervalTypeString);
 
         FeedbackResponseStatisticsType intervalType = Enum.valueOf(FeedbackResponseStatisticsType.class,
                 intervalTypeString);
+        System.out.println("Creating new counter! " + intervalStartTime + " " + intervalEndTime);
         try {
             FeedbackResponseStatisticsDb
                 .inst()

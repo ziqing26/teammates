@@ -66,7 +66,7 @@ public class FeedbackResponseStatisticsDb extends EntitiesDb<FeedbackResponseSta
 			.size();
 	
 		FeedbackResponseStatistic newEntry = new FeedbackResponseStatistic(
-			intervalStartTime.getEpochSecond(), count, intervalType);
+				intervalStartTime.getEpochSecond(), count, intervalType);
 		ObjectifyService.ofy().save().entities(newEntry).now();
 	}
 	

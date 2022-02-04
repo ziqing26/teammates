@@ -51,14 +51,14 @@ public class FeedbackResponseStatisticsGenerateScript extends DatastoreClient {
             if (i % 100 == 0) { System.out.println("Hours " + i);}
             taskQueuer.scheduleFeedbackResponseStatisticsCreation(startOfIntervalForHours,
                 FeedbackResponseStatisticsType.HOUR);
-                startOfIntervalForHours.plusSeconds(Const.HOUR_IN_SECONDS);
+                startOfIntervalForHours = startOfIntervalForHours.plusSeconds(Const.HOUR_IN_SECONDS);
         }
         
         for (int i = 0; i < minutesDifference; i++) {
             if (i % 10000 == 0) { System.out.println("Minutes " + i);}
             taskQueuer.scheduleFeedbackResponseStatisticsCreation(startOfIntervalForMinutes,
                 FeedbackResponseStatisticsType.MINUTE);
-                startOfIntervalForMinutes.plusSeconds(Const.MINUTE_IN_SECONDS);
+                startOfIntervalForMinutes = startOfIntervalForMinutes.plusSeconds(Const.MINUTE_IN_SECONDS);
         }        
     }
 }

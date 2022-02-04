@@ -1,18 +1,27 @@
 package teammates.client.scripts;
 
+import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.cloud.datastore.DatastoreOptions;
+import com.google.cloud.datastore.testing.LocalDatastoreHelper;
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.Query;
 
 import teammates.client.connector.DatastoreClient;
+import teammates.common.util.Config;
+import teammates.common.util.Const;
+import teammates.logic.core.LogicStarter;
+import teammates.storage.api.FeedbackResponseStatisticsDb;
+import teammates.storage.api.OfyHelper;
 import teammates.storage.entity.FeedbackResponse;
 import teammates.storage.entity.FeedbackResponseStatistic;
 import teammates.storage.entity.FeedbackResponseStatisticsType;
@@ -43,58 +52,59 @@ public class FergusTest extends DatastoreClient {
     private FergusTest() {
     }
 
-
-    // Start running updateForPastMinute for about 5 minutes first, then run this function
-    // This function will update for all time, and then write over some of the current data.
-/*     public static void updateForAlltime() {
-    Instant fnStartTime = Instant.now(); // Function should not overwrite this.
-    int CHUNK_BY = MONTH;
-    // StartTime put as 2010 first
-
-    Date date = new Date();
-
-    Query<FeedbackResponse> intialQuery = ObjectifyService.ofy().load().type(FeedbackResponse.class)
-            .project("createdAt");
-
-    Integer count = intialQuery.filter("createdAt >=", startTime).filter("createdAt <=", endTime).list()
-            .size();
-
-
-    // Chunk this, add to task queue to process it!
-    // I'm thinking chunk by MONTH
-
-
-}
- */
-public static void generateStatisticsMinute() {
+    public static Integer getTotalStatisticsObjectCount() {
+        int count = ObjectifyService.ofy().load().type(FeedbackResponseStatistic.class)
+                .project("createdAt")
+                .list()
+                .size();
+        System.out.println(count);
+        return count;
+    }
+    
+    public static void generateStatisticsObjects() {
+        int YEAR_TO_START_CREATION = 2022;  // In production, this will be 2010.
         ZoneOffset currentOffset = OffsetDateTime.now().getOffset();
-        Instant intervalEndTime = LocalDateTime.now()
-                .truncatedTo(ChronoUnit.SECONDS)
-                .withMinute(0)
-                .withSecond(0)
-                .toInstant(currentOffset);
+        LocalDateTime timeOfCreation = LocalDateTime.of(YEAR_TO_START_CREATION, 1, 1, 0, 0);
+    
+        Instant startOfCreation = timeOfCreation.toInstant(currentOffset);
+        Instant endOfCreation = LocalDateTime.now().toInstant(currentOffset);
+    
+        // Check how many hours in between.
+        Duration timeDifference = Duration.between(startOfCreation, endOfCreation);
+        Long hoursDifference = Math.abs(timeDifference.toHours());
+        Long minutesDifference = Math.abs(timeDifference.toMinutes());
+        
+        Instant startOfIntervalForHours = startOfCreation;
+        Instant startOfIntervalForMinutes = startOfCreation;
+            
+        System.out.println("Scheduling...");
+        for (int i = 0; i < hoursDifference; i++) {
+            if (i % 100 == 0) {
+                System.out.println("Hours " + i);
+            }
+            FeedbackResponseStatisticsDb
+                .inst()
+                    .countAndCreateStatisticsObject(startOfIntervalForHours,
+                            startOfIntervalForHours.plusSeconds(Const.HOUR_IN_SECONDS),
+                            FeedbackResponseStatisticsType.HOUR);
 
-        Instant intervalRepresentativeTime = intervalEndTime.minusSeconds(30 * 60);
-        Instant intervalStartTime = intervalEndTime.minusSeconds(30 * 60);
-        try {
-            int count = ObjectifyService.ofy().load()
-            .type(FeedbackResponse.class)
-            .project("createdAt")
-            .filter("createdAt >", intervalStartTime)
-            .filter("createdAt <", intervalEndTime)
-            .list()
-            .size();
-
-            FeedbackResponseStatistic newEntry = new FeedbackResponseStatistic(
-            intervalRepresentativeTime.getEpochSecond(), count, FeedbackResponseStatisticsType.MINUTE);
-            ObjectifyService.ofy().save().entities(newEntry).now();
-        } catch (Error e) {
-            System.out.println(e);
+            startOfIntervalForHours = startOfIntervalForHours.plusSeconds(Const.HOUR_IN_SECONDS);
         }
-
+        
+        for (int i = 0; i < minutesDifference; i++) {
+            if (i % 10000 == 0) {
+                System.out.println("Minutes " + i);
+            }
+            FeedbackResponseStatisticsDb
+                .inst()
+                    .countAndCreateStatisticsObject(startOfIntervalForMinutes,
+                            startOfIntervalForHours.plusSeconds(Const.MINUTE_IN_SECONDS),
+                            FeedbackResponseStatisticsType.MINUTE);
+            startOfIntervalForMinutes = startOfIntervalForMinutes.plusSeconds(Const.MINUTE_IN_SECONDS);
+        }        
     }
 
-    public static void getCount() {
+    public static void getIntervalResponseCount() {
         long DEFAULT_INTERVAL = 50;
         Instant startTime = Instant.now().minusSeconds(YEAR);
         Instant endTime = Instant.now();
@@ -122,7 +132,7 @@ public static void generateStatisticsMinute() {
         System.out.println(totalCount);
     }
 
-    public static void getTotalCount() {
+    public static void getTotalResponseCount() {
         Query<FeedbackResponse> intialQuery = ObjectifyService.ofy().load().type(FeedbackResponse.class);
         System.out.println("Total responses: " + intialQuery.count());
     }
@@ -134,7 +144,7 @@ public static void generateStatisticsMinute() {
 
     public static void generateResponses() {
         int STARTING_ID = 1;
-        int NUMBER_OF_FEEDBACK_QUESTIONS = 100000;
+        int NUMBER_OF_FEEDBACK_QUESTIONS = 100;
         int CHUNKER = 10; // Prevent Java heap overflow
         for (int i = 0; i < CHUNKER; i++) {
             FeedbackResponse[] arr = new FeedbackResponse[NUMBER_OF_FEEDBACK_QUESTIONS / CHUNKER];
@@ -175,11 +185,13 @@ public static void generateStatisticsMinute() {
 
     @Override
     protected void doOperation() {
-        getCount(); //
-        // getTotalCount();
+        getIntervalResponseCount(); //
+        getTotalResponseCount();
+        // getTotalStatisticsObjectCount();
+
         // generateResponses();
-        // generateStatisticsMinute();
-        //generateResponsesNow();
+        // generateResponsesNow();
+        // generateStatisticsObjects();
         // deleteAllResponses();
         // System.out.println(ZonedDateTime().now());
     }
@@ -189,7 +201,28 @@ public static void generateStatisticsMinute() {
         System.out.println("Start timer at " + (startTime));
         // new FergusTest().doOperationRemotely();
         // ObjectifyService.init();
-        new FergusTest().doOperation();
+
+        LocalDatastoreHelper localDatastoreHelper = LocalDatastoreHelper.newBuilder()
+                .setConsistency(0.9) // default setting
+                .setPort(Config.APP_LOCALDATASTORE_PORT)
+                .setStoreOnDisk(true)
+                .setDataDir(Paths.get("datastore-dev/datastore"))
+                .build();
+                try {
+                    localDatastoreHelper.start();
+                    DatastoreOptions options = localDatastoreHelper.getOptions();
+                    ObjectifyService.init(new ObjectifyFactory(
+                        options.getService()
+                    ));
+                    ObjectifyService.begin();
+                    OfyHelper.registerEntityClasses();
+                    LogicStarter.initializeDependencies();
+                    System.out.println(localDatastoreHelper.getGcdPath());
+                    System.out.println(localDatastoreHelper.isStoreOnDisk());
+                    new FergusTest().doOperation();
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
 
         long endTime = System.currentTimeMillis();
         System.out.println("That took " + (endTime - startTime) + " milliseconds or " +  ((endTime - startTime)/1000) + " seconds or " + (((endTime - startTime)/1000)/60 + " minutes.") );
