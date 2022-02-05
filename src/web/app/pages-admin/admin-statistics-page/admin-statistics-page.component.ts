@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { ResponseStatisticsService } from 'src/web/services/response-statistics.service';
 import { StatusMessageService } from 'src/web/services/status-message.service';
-import { threadId } from 'worker_threads';
 import { TimezoneService } from '../../../services/timezone.service';
 import {
   QueryLogsParams,
@@ -50,7 +49,6 @@ export class AdminStatisticsPageComponent implements OnInit {
   isLoading: boolean = false;
   isSearching: boolean = false;
   hasResult: boolean = false;
-  // isFiltersExpanded: boolean = false;
   // searchStartTime: number = 0;
   // searchEndTime: number = 0;
   // earliestStatisticsTimestampRetrieved: number = Number.MAX_SAFE_INTEGER;
@@ -122,14 +120,15 @@ export class AdminStatisticsPageComponent implements OnInit {
     const sourceToFrequencyMap: Map<string, number> = stats
       .reduce((acc: Map<string, number>, stats: FeedbackResponseStatistic) => {
           const accurateDate: Date = new Date(stats.time);
-          accurateDate.setSeconds(0, 0);
-          const dateString: string = accurateDate.toDateString();
+          accurateDate.setMinutes(0, 0, 0);
+          // accurateDate.setHours(0, 0, 0, 0);
+          const dateString: string = accurateDate.toString();
           const accCount = acc.get(dateString) || 0;
           return acc.set(dateString, (accCount + stats.count))
         },
         new Map<string, number>());
     console.log("sourceToFrequencyMap", sourceToFrequencyMap)
-    
+    this.chartResult = [];
     sourceToFrequencyMap.forEach((value: number, key: string) => {
       this.chartResult.push({ timestamp: new Date(key), numberOfTimes: value });
     });
