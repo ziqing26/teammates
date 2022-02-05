@@ -56,6 +56,12 @@ public class TaskQueuer {
         service.addDeferredTask(task, countdownTime);
     }
 
+    void addCloudTask(String queueName, String workerUrl, Map<String, String> paramMap, Object requestBody) {
+        service = new GoogleCloudTasksService();
+        TaskWrapper task = new TaskWrapper(queueName, workerUrl, paramMap, requestBody);
+        service.addDeferredTask(task, 0);
+    }
+
     // The following methods are the actual API methods to be used by the client classes
 
     /**
@@ -277,5 +283,9 @@ public class TaskQueuer {
         addTask(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME,
                     TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL,
                 paramMap, null);
+        /*addCloudTask(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME,
+                TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL,
+                paramMap, null);
+        */
     }
 }

@@ -43,6 +43,14 @@ public class FergusTest extends DatastoreClient {
     }
 
     /**
+     * Prints the total count of all feedback responses in the database.
+     */
+    public static void getTotalResponseCount() {
+        Query<FeedbackResponse> intialQuery = ObjectifyService.ofy().load().type(FeedbackResponse.class);
+        System.out.println("Total feedback responses: " + intialQuery.count());
+    }
+
+    /**
      * Prints the total count of all statistics object count in the database.
      */
     public static void getTotalStatisticsObjectCount() {
@@ -50,15 +58,7 @@ public class FergusTest extends DatastoreClient {
                 .project("createdAt")
                 .list()
                 .size();
-        System.out.println("Total statistic objects: " + count);
-    }
-
-    /**
-     * Prints the total count of all feedback responses in the database.
-     */
-    public static void getTotalResponseCount() {
-        Query<FeedbackResponse> intialQuery = ObjectifyService.ofy().load().type(FeedbackResponse.class);
-        System.out.println("Total responses: " + intialQuery.count());
+        System.out.println("Total feedback statistic objects: " + count);
     }
 
     /**
@@ -121,13 +121,12 @@ public class FergusTest extends DatastoreClient {
     @Override
     protected void doOperation() {
         generateResponses();
-        // getIntervalResponseCount(); //
-        // getTotalResponseCount();
+        // getIntervalResponseCount();
+        getTotalResponseCount();
         // getTotalStatisticsObjectCount();
 
         // generateResponsesNow();
         // deleteAllResponses();
-        // System.out.println(ZonedDateTime().now());
     }
 
     public static void main(String[] args) {
