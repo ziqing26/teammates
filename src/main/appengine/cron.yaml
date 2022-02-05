@@ -34,6 +34,6 @@ cron:
   timezone: 'Asia/Singapore'
   description: 'Updates the minute-count of feedback responses'
 - url: '/auto/feedbackStatisticsHour'
-  schedule: 'every hour synchronized'
+  schedule: 'every 60 minutes synchronized'
   timezone: 'Asia/Singapore'
   description: 'Updates the hourly count of feedback responses'
