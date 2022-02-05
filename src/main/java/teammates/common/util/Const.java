@@ -35,7 +35,7 @@ public final class Const {
     public static final Duration FEEDBACK_SESSIONS_STATISTICS_SEARCH_WINDOW = Duration.ofMinutes(1);
     public static final Duration FEEDBACK_STATISTIC_MINUTE_THRESHHOLD = Duration.ofDays(7);
     public static final int MINUTE_IN_SECONDS = 60;
-    public static final int HOUR_IN_SECONDS = 60 * 60; 
+    public static final int HOUR_IN_SECONDS = 60 * 60;
 
     public static final int SEARCH_QUERY_SIZE_LIMIT = 50;
 
@@ -401,7 +401,7 @@ public final class Const {
         public static final String FEEDBACK_SESSION_UNPUBLISHED_EMAIL_WORKER_URL =
                 URI_PREFIX + "/feedbackSessionUnpublishedEmail";
 
-        public static final String FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME = 
+        public static final String FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME =
                 "feedback-response-statistics-creation-queue";
         public static final String FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL =
                 URI_PREFIX + "/feedbackResponseStatisticsCreation";

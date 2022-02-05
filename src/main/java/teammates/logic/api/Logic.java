@@ -796,7 +796,7 @@ public class Logic {
     public List<FeedbackResponseStatisticAttributes> getFeedbackResponseStatistics(Instant rangeStart, Instant rangeEnd) {
         assert rangeStart != null;
         assert rangeEnd != null;
-        
+
         return feedbackResponseStatisticLogic.getFeedbackResponseStatistics(rangeStart, rangeEnd);
     }
 

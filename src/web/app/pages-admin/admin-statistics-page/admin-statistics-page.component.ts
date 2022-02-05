@@ -95,8 +95,6 @@ export class AdminStatisticsPageComponent implements OnInit {
 
     if (timestampUntil >= dateTimeNow) {
       this.intervalId = setInterval(() => {
-          console.log(new Date(timestampUntil))
-          console.log("one minute has passed");
           timestampFrom = timestampUntil;
           timestampUntil += this.timeInterval;
           dateTimeNow += this.timeInterval;
@@ -121,7 +119,6 @@ export class AdminStatisticsPageComponent implements OnInit {
       }),
     )
     .subscribe((statisticsResults: FeedbackResponseStatistics) => {
-      console.log("stats from backend", statisticsResults.statistics);
       this.processStatisticsForGraph(statisticsResults.statistics);
     },
       (e: ErrorMessageOutput) => this.statusMessageService.showErrorToast(e.error.message));
@@ -135,7 +132,6 @@ export class AdminStatisticsPageComponent implements OnInit {
         const accCount: number = acc.get(dateString) || 0;
         return acc.set(dateString, (accCount + stats.count));
       }, new Map<string, number>());
-    console.log("sourceToFrequencyMap", sourceToFrequencyMap);
     sourceToFrequencyMap.forEach((value: number, key: string) => {
       this.chartResult.push({ timestamp: new Date(key), numberOfTimes: value });
     });

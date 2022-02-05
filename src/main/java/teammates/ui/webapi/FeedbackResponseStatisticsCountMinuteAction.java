@@ -27,9 +27,9 @@ public class FeedbackResponseStatisticsCountMinuteAction extends AdminOnlyAction
         Instant intervalStartTime = intervalEndTime.minusSeconds(60);
         try {
             FeedbackResponseStatisticsDb
-            .inst()
-            .countAndCreateStatisticsObject(intervalStartTime, intervalEndTime,
-                FeedbackResponseStatisticsType.MINUTE);
+                    .inst()
+                    .countAndCreateStatisticsObject(intervalStartTime, intervalEndTime,
+                        FeedbackResponseStatisticsType.MINUTE);
         } catch (Exception e) {
             log.severe("Unexpected error", e);
         }

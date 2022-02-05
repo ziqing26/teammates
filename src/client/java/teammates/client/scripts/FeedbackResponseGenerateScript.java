@@ -18,7 +18,6 @@ public class FeedbackResponseGenerateScript extends DatastoreClient {
     private static final int HOUR = 60 * 60;
     private static final int WEEK = HOUR * 24 * 7;
     private static final int MONTH = WEEK * 4;
-    private static final int YEAR = MONTH * 12;
 
     private static final String COURSE_ID = "TestData.500S30Q100T";
 

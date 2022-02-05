@@ -1,7 +1,5 @@
 package teammates.ui.output;
 
-
-import teammates.common.datatransfer.attributes.FeedbackResponseAttributes;
 import teammates.common.datatransfer.attributes.FeedbackResponseStatisticAttributes;
 
 /**

@@ -14,9 +14,6 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.cmd.LoadType;
 import com.googlecode.objectify.cmd.Query;
 
-import org.apache.zookeeper.server.admin.Commands.InitialConfigurationCommand;
-import org.threeten.bp.Instant;
-
 import teammates.common.datatransfer.AttributesDeletionQuery;
 import teammates.common.datatransfer.attributes.FeedbackResponseAttributes;
 import teammates.common.exception.EntityAlreadyExistsException;
@@ -309,30 +306,6 @@ public final class FeedbackResponsesDb extends EntitiesDb<FeedbackResponse, Feed
         }
 
         deleteEntity(entitiesToDelete.keys().list());
-    }
-
-    /**
-     * Gets the responses.
-     */
-    public void getFeedbackResponses(Instant startTime, Instant endTime) {
-        long DEFAULT_INTERVAL = 50;
-        long timeDifference = endTime.getEpochSecond() - startTime.getEpochSecond();
-        long defaultIntervalSize = Math.floorDiv(timeDifference, DEFAULT_INTERVAL);
-        long buffer = timeDifference - (defaultIntervalSize * DEFAULT_INTERVAL);
-
-        // Two choices. Async, or batch. Count is synchronous, and not good 
-        Map<Instant, Integer> hashCount = new HashMap<>();
-        Instant currentTime = startTime;
-        Query<FeedbackResponse> intialQuery = ofy().load().type(FeedbackResponse.class).project("createdAt");
-        for (long i = 0; i < DEFAULT_INTERVAL; i++) {
-            long secondsToNextInterval = buffer <= 0 ? defaultIntervalSize : defaultIntervalSize + 1;
-            buffer -= 1;
-            endTime = currentTime.plusSeconds(secondsToNextInterval);
-            Integer count = intialQuery.filter("createdAt >=", currentTime).filter("createdAt <=", endTime).count();
-            hashCount.put(currentTime, count);
-            currentTime = endTime;
-        }
-        System.out.println(hashCount);
     }
 
     /**

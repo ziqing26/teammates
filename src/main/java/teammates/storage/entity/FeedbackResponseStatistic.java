@@ -9,11 +9,11 @@ import com.googlecode.objectify.annotation.OnSave;
 import com.googlecode.objectify.annotation.Translate;
 
 /**
- * Represents the count 
+ * Represents a feedback response statistic.
  */
 @Entity
 public class FeedbackResponseStatistic extends BaseEntity {
-	@Id
+    @Id
     // Represents the start of the interval in epoch seconds
     private long time;
 
@@ -60,12 +60,12 @@ public class FeedbackResponseStatistic extends BaseEntity {
     public Instant getCreatedAt() {
         return createdAt;
     }
-    
+
     public FeedbackResponseStatisticsType getIntervalType() {
         return intervalType;
     }
-	
-	/**
+
+    /**
      * Sets the createdAt timestamp.
      */
     public void setCreatedAt(Instant created) {
@@ -77,11 +77,11 @@ public class FeedbackResponseStatistic extends BaseEntity {
         return updatedAt;
     }
 
-	public void setLastUpdate(Instant updatedAt) {
+    public void setLastUpdate(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-	/**
+    /**
      * Updates the updatedAt timestamp when saving.
      */
     @OnSave

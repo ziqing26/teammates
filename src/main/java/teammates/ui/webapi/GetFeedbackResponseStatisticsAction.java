@@ -14,8 +14,6 @@ class GetFeedbackResponseStatisticsAction extends AdminOnlyAction {
 
     @Override
     public JsonResult execute() {
-        List<FeedbackResponseStatisticAttributes> feedbackResponseStatistics;
-        
         String startTimeString = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_RESPONSE_STATISTIC_STARTIME);
         long startTime;
         try {
@@ -46,13 +44,14 @@ class GetFeedbackResponseStatisticsAction extends AdminOnlyAction {
             throw new InvalidHttpParameterException(
                     "The filter range is not valid. End time should be after start time.");
         }
-        
-        feedbackResponseStatistics =
+
+        List<FeedbackResponseStatisticAttributes> feedbackResponseStatistics =
                 logic.getFeedbackResponseStatistics(Instant.ofEpochSecond(startTime), Instant.ofEpochSecond(endTime));
 
         FeedbackResponseStatisticAttributes.sortByTime(feedbackResponseStatistics);
-        
-        FeedbackResponseStatisticsData feedbackResponseStatisticsData = new FeedbackResponseStatisticsData(feedbackResponseStatistics);
+
+        FeedbackResponseStatisticsData feedbackResponseStatisticsData = new
+                FeedbackResponseStatisticsData(feedbackResponseStatistics);
 
         return new JsonResult(feedbackResponseStatisticsData);
     }

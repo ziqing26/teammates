@@ -28,7 +28,7 @@ public class FeedbackResponseStatisticsCountHourAction extends AdminOnlyAction {
         Instant intervalStartTime = intervalEndTime.minusSeconds(60 * 60);
         try {
             FeedbackResponseStatisticsDb
-                .inst()
+                    .inst()
                     .countAndCreateStatisticsObject(intervalStartTime, intervalEndTime,
                             FeedbackResponseStatisticsType.HOUR);
         } catch (Exception e) {

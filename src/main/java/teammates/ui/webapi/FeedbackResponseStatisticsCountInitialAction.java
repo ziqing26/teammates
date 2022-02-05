@@ -16,10 +16,10 @@ import teammates.storage.entity.FeedbackResponseStatisticsType;
 public class FeedbackResponseStatisticsCountInitialAction extends AdminOnlyAction {
 
     private static final Logger log = Logger.getLogger();
+    private static final int YEAR_TO_START_CREATION = 2010;
 
     @Override
     public JsonResult execute() {
-        int YEAR_TO_START_CREATION = 2020;  // In production, this will be 2010.
         ZoneOffset currentOffset = OffsetDateTime.now().getOffset();
         LocalDateTime timeOfCreation = LocalDateTime.of(YEAR_TO_START_CREATION, 0, 0, 0, 0);
 
@@ -30,27 +30,27 @@ public class FeedbackResponseStatisticsCountInitialAction extends AdminOnlyActio
         Duration timeDifference = Duration.between(startOfCreation, endOfCreation);
         Long hoursDifference = Math.abs(timeDifference.toHours());
         Long minutesDifference = Math.abs(timeDifference.toMinutes());
-        
+
         Instant startOfIntervalForHours = startOfCreation;
         Instant startOfIntervalForMinutes = startOfCreation;
 
         try {
             for (int i = 0; i < hoursDifference; i++) {
                 taskQueuer.scheduleFeedbackResponseStatisticsCreation(startOfIntervalForHours,
-                    FeedbackResponseStatisticsType.HOUR);
-                    startOfIntervalForHours.plusSeconds(Const.HOUR_IN_SECONDS);
+                        FeedbackResponseStatisticsType.HOUR);
+                startOfIntervalForHours.plusSeconds(Const.HOUR_IN_SECONDS);
             }
-        
+
             for (int i = 0; i < minutesDifference; i++) {
                 taskQueuer.scheduleFeedbackResponseStatisticsCreation(startOfIntervalForMinutes,
-                    FeedbackResponseStatisticsType.MINUTE);
-                    startOfIntervalForMinutes.plusSeconds(Const.MINUTE_IN_SECONDS);
-            }    
+                        FeedbackResponseStatisticsType.MINUTE);
+                startOfIntervalForMinutes.plusSeconds(Const.MINUTE_IN_SECONDS);
+            }
 
         } catch (Exception e) {
             log.severe("Unexpected error", e);
         }
 
-      return new JsonResult("Successful");
+        return new JsonResult("Successful");
     }
 }

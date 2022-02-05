@@ -261,9 +261,8 @@ public class TaskQueuer {
 
     /**
      * Schedules for the search indexing of the student identified by {@code courseId} and {@code email}.
-     *
-     * @param startOfCreation time of start of creation
-     * @param feedbackResponseType the interval length of the feedback response statistic
+     * @param startOfInterval time of start of creation
+     * @param intervalType the type of interval of the feedback response statistic
      */
     public void scheduleFeedbackResponseStatisticsCreation(Instant startOfInterval,
             FeedbackResponseStatisticsType intervalType) {

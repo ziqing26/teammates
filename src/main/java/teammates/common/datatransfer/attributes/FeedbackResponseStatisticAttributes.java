@@ -6,11 +6,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+import android.annotation.SuppressLint;
 import teammates.common.util.Const;
 import teammates.common.util.FieldValidator;
 import teammates.storage.entity.FeedbackResponseStatistic;
 import teammates.storage.entity.FeedbackResponseStatisticsType;
 
+/**
+ * The data transfer object for {@link FeedbackResponseStatistics} entities.
+ */
 public class FeedbackResponseStatisticAttributes extends EntityAttributes<FeedbackResponseStatistic> {
 
     private final FeedbackResponseStatisticsType intervalType;
@@ -92,6 +96,7 @@ public class FeedbackResponseStatisticAttributes extends EntityAttributes<Feedba
 
     @Override
     public void sanitizeForSaving() {
+        assert true;
     }
 
     public long getTime() {
@@ -109,4 +114,13 @@ public class FeedbackResponseStatisticAttributes extends EntityAttributes<Feedba
     public void setCount(int count) {
         this.count = count;
     }
+
+    public Instant getCreatedAt() {
+        return this.createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
 }

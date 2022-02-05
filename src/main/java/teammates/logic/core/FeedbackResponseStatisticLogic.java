@@ -12,31 +12,31 @@ import teammates.storage.entity.FeedbackResponseStatisticsType;
 /**
  * Handles operations related to feedback response statistics.
  */
-public class FeedbackResponseStatisticLogic {
+public final class FeedbackResponseStatisticLogic {
 
-	private static final FeedbackResponseStatisticLogic instance = new FeedbackResponseStatisticLogic();
+    private static final FeedbackResponseStatisticLogic instance = new FeedbackResponseStatisticLogic();
 
-	private final FeedbackResponseStatisticsDb feedbackResponseStatisticDb = FeedbackResponseStatisticsDb.inst();
+    private final FeedbackResponseStatisticsDb feedbackResponseStatisticDb = FeedbackResponseStatisticsDb.inst();
 
-	private FeedbackResponseStatisticLogic() {
-		// prevent initialization
-	}
-	
-	public static FeedbackResponseStatisticLogic inst() {
-		return instance;
-	}
+    private FeedbackResponseStatisticLogic() {
+        // prevent initialization
+    }
 
-	/**
+    public static FeedbackResponseStatisticLogic inst() {
+        return instance;
+    }
+
+    /**
      * Gets all feedback response statistics in time period.
      */
     public List<FeedbackResponseStatisticAttributes> getFeedbackResponseStatistics(Instant startTime, Instant endTime) {
 
-		if (Duration.between(startTime, endTime).compareTo(Const.FEEDBACK_STATISTIC_MINUTE_THRESHHOLD) <= 0) {
-			return feedbackResponseStatisticDb.getFeedbackResponseStatisticsInInterval(startTime, endTime,
-				FeedbackResponseStatisticsType.MINUTE);
-		}
+        if (Duration.between(startTime, endTime).compareTo(Const.FEEDBACK_STATISTIC_MINUTE_THRESHHOLD) <= 0) {
+            return feedbackResponseStatisticDb.getFeedbackResponseStatisticsInInterval(startTime, endTime,
+                FeedbackResponseStatisticsType.MINUTE);
+        }
 
-		return feedbackResponseStatisticDb.getFeedbackResponseStatisticsInInterval(startTime, endTime, 
-			FeedbackResponseStatisticsType.HOUR);
+        return feedbackResponseStatisticDb.getFeedbackResponseStatisticsInInterval(startTime, endTime,
+            FeedbackResponseStatisticsType.HOUR);
     }
 }
