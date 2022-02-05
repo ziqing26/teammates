@@ -8,6 +8,9 @@ import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.OnSave;
 import com.googlecode.objectify.annotation.Translate;
 
+/**
+ * Represents the count 
+ */
 @Entity
 public class FeedbackResponseStatistic extends BaseEntity {
 	@Id

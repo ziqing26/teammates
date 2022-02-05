@@ -1,5 +1,8 @@
 package teammates.storage.entity;
 
+/**
+ * 
+ */
 public enum FeedbackResponseStatisticsType {
     HOUR("HOUR"), MINUTE("MINUTE");
 
@@ -7,7 +10,7 @@ public enum FeedbackResponseStatisticsType {
     private FeedbackResponseStatisticsType(String value) {
         this.value = value;
     }
-    
+
     public String getValue() {
         return value;
     }

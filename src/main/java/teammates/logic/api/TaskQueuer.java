@@ -55,12 +55,6 @@ public class TaskQueuer {
         TaskWrapper task = new TaskWrapper(queueName, workerUrl, paramMap, requestBody);
         service.addDeferredTask(task, countdownTime);
     }
-    
-    void addCloudTask(String queueName, String workerUrl, Map<String, String> paramMap, Object requestBody) {
-        service = new GoogleCloudTasksService();
-        TaskWrapper task = new TaskWrapper(queueName, workerUrl, paramMap, requestBody);
-        service.addDeferredTask(task, 0);
-    }
 
     // The following methods are the actual API methods to be used by the client classes
 
@@ -265,8 +259,8 @@ public class TaskQueuer {
      * @param startOfCreation time of start of creation
      * @param feedbackResponseType the interval length of the feedback response statistic
      */
-    public void scheduleFeedbackResponseStatisticsCreation(Instant startOfInterval, 
-        FeedbackResponseStatisticsType intervalType) {
+    public void scheduleFeedbackResponseStatisticsCreation(Instant startOfInterval,
+            FeedbackResponseStatisticsType intervalType) {
         Map<String, String> paramMap = new HashMap<>();
 
         Instant endOfInterval;
@@ -275,7 +269,7 @@ public class TaskQueuer {
         } else {
             endOfInterval = startOfInterval.plusSeconds(Const.MINUTE_IN_SECONDS);
         }
-        
+
         paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_STARTIME, Long.toString(startOfInterval.toEpochMilli()));
         paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_ENDTIME, Long.toString(endOfInterval.toEpochMilli()));
         paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_TYPE, intervalType.getValue());
@@ -283,9 +277,5 @@ public class TaskQueuer {
         addTask(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME,
                     TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL,
                 paramMap, null);
-/*         addCloudTask(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME,
-                TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL,
-                paramMap, null);
- */
     }
 }

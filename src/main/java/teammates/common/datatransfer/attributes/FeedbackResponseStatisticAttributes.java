@@ -12,15 +12,15 @@ import teammates.storage.entity.FeedbackResponseStatistic;
 import teammates.storage.entity.FeedbackResponseStatisticsType;
 
 public class FeedbackResponseStatisticAttributes extends EntityAttributes<FeedbackResponseStatistic> {
-    // intervalType of statistic measured in seconds 
+
     private final FeedbackResponseStatisticsType intervalType;
-	private long time;
+    private long time;
     private int count;
     private transient Instant createdAt;
     private transient Instant updatedAt;
 
-	protected FeedbackResponseStatisticAttributes(long time, int count, FeedbackResponseStatisticsType intervalType) {
-		this.time = time;
+    protected FeedbackResponseStatisticAttributes(long time, int count, FeedbackResponseStatisticsType intervalType) {
+        this.time = time;
         this.count = count;
         this.intervalType = intervalType;
 
@@ -28,18 +28,18 @@ public class FeedbackResponseStatisticAttributes extends EntityAttributes<Feedba
         this.updatedAt = Const.TIME_REPRESENTS_DEFAULT_TIMESTAMP;
     }
 
-
-	@Override
+    @Override
     public FeedbackResponseStatistic toEntity() {
         return new FeedbackResponseStatistic(time, count, intervalType);
-	}
-	
+    }
+
     /**
      * Gets the {@link FeedbackResponseStatisticAttributes} instance of the given {@link FeedbackResponseStatistic}.
      */
     public static FeedbackResponseStatisticAttributes valueOf(FeedbackResponseStatistic statistic) {
         FeedbackResponseStatisticAttributes statisticAttributes =
-                new FeedbackResponseStatisticAttributes(statistic.getTime(), statistic.getCount(), statistic.getIntervalType());
+                new FeedbackResponseStatisticAttributes(
+                    statistic.getTime(), statistic.getCount(), statistic.getIntervalType());
 
         if (statistic.getCreatedAt() != null) {
             statisticAttributes.createdAt = statistic.getCreatedAt();
@@ -63,9 +63,9 @@ public class FeedbackResponseStatisticAttributes extends EntityAttributes<Feedba
     /**
      * Sorts the instructors list alphabetically by name.
      */
-	public static void sortByTime(List<FeedbackResponseStatisticAttributes> statistics) {
-		statistics.sort(Comparator.comparing(statistic -> statistic.getTime()));
-	}
+    public static void sortByTime(List<FeedbackResponseStatisticAttributes> statistics) {
+        statistics.sort(Comparator.comparing(statistic -> statistic.getTime()));
+    }
 
     @Override
     public int hashCode() {
@@ -92,7 +92,6 @@ public class FeedbackResponseStatisticAttributes extends EntityAttributes<Feedba
 
     @Override
     public void sanitizeForSaving() {
-        
     }
 
     public long getTime() {
@@ -100,14 +99,14 @@ public class FeedbackResponseStatisticAttributes extends EntityAttributes<Feedba
     }
 
     public void setTime(long time) {
-		this.time = time;
+        this.time = time;
     }
 
     public int getCount() {
         return count;
     }
 
-	public void setCount(int count) {
-		this.count = count;
-	}
+    public void setCount(int count) {
+        this.count = count;
+    }
 }
