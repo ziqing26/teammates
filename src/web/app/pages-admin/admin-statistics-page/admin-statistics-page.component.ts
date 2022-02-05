@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
-import { ResponseStatisticsService } from 'src/web/services/response-statistics.service';
-import { StatusMessageService } from 'src/web/services/status-message.service';
+import { ResponseStatisticsService } from '../../../services/response-statistics.service';
+import { StatusMessageService } from '../../../services/status-message.service';
 import { TimezoneService } from '../../../services/timezone.service';
 import {
-  QueryLogsParams,
-  FeedbackResponseStatistics,
   FeedbackResponseStatistic,
+  FeedbackResponseStatistics,
+  QueryLogsParams,
 } from '../../../types/api-output';
 import { DateFormat } from '../../components/datepicker/datepicker.component';
 import { StatisticsChartDataModel } from '../../components/statistics-chart/ststistics-chart-model';
@@ -19,22 +19,17 @@ interface SearchStatisticsFormModel {
   statisticsTimeFrom: TimeFormat;
   statisticsTimeTo: TimeFormat;
 }
+
+/**
+ * Page for response statistics.
+ */
 @Component({
   selector: 'tm-admin-statistics-page',
   templateUrl: './admin-statistics-page.component.html',
-  styleUrls: ['./admin-statistics-page.component.scss']
+  styleUrls: ['./admin-statistics-page.component.scss'],
 })
 
 export class AdminStatisticsPageComponent implements OnInit {
-  // data = {
-  //   const text = await FileAttachment("temperature.csv").text();
-  //   const parseDate = d3.utcParse("%Y-%m-%d");
-  //   return d3.csvParse(text, ({date, submissions}) => ({
-  //     date: parseDate(date),
-  //     submissions: submissions
-  //   }));
-  // }
-  // isAdmin: boolean = false;
 
   formModel: SearchStatisticsFormModel = {
     statisticsDateFrom: { year: 0, month: 0, day: 0 },
@@ -49,10 +44,6 @@ export class AdminStatisticsPageComponent implements OnInit {
   isLoading: boolean = false;
   isSearching: boolean = false;
   hasResult: boolean = false;
-  // searchStartTime: number = 0;
-  // searchEndTime: number = 0;
-  // earliestStatisticsTimestampRetrieved: number = Number.MAX_SAFE_INTEGER;
-  // latestStatisticsTimestampRetrieved: number = 0;
   statisticsMap: Map<string, number> = new Map<string, number>();
 
   constructor(
@@ -80,17 +71,16 @@ export class AdminStatisticsPageComponent implements OnInit {
     this.formModel.statisticsDateTo = { ...this.dateToday };
     this.formModel.statisticsTimeFrom = { hour: fromDate.getHours(), minute: fromDate.getMinutes() };
     this.formModel.statisticsTimeTo = { hour: now.getHours(), minute: now.getMinutes() };
-    
   }
 
-  generateGraph(){
+  generateGraph(): void {
+    this.chartResult = [];
     const timestampFrom: number = this.timezoneService.resolveLocalDateTime(
       this.formModel.statisticsDateFrom, this.formModel.statisticsTimeFrom);
     const timestampUntil: number = this.timezoneService.resolveLocalDateTime(
       this.formModel.statisticsDateTo, this.formModel.statisticsTimeFrom);
       this.searchForStatistics(timestampFrom / 1000, timestampUntil / 1000);
   }
-
 
   searchForStatistics(timestampFrom: number, timestampUntil: number): void {
     this.queryParams = {
@@ -107,33 +97,24 @@ export class AdminStatisticsPageComponent implements OnInit {
         this.hasResult = true;
       }),
     )
-      .subscribe((statisticsResults: FeedbackResponseStatistics) => {
-      console.log(timestampFrom / 1000, timestampUntil / 1000);
-      console.log("statisticsResults", statisticsResults)
-      this.processStatisticsForGraph(statisticsResults.statistics)
+    .subscribe((statisticsResults: FeedbackResponseStatistics) => {
+      this.processStatisticsForGraph(statisticsResults.statistics);
     },
       (e: ErrorMessageOutput) => this.statusMessageService.showErrorToast(e.error.message));
   }
-  
-  private processStatisticsForGraph(stats: FeedbackResponseStatistic[]): void {
-
-    const sourceToFrequencyMap: Map<string, number> = stats
+  private processStatisticsForGraph(statistics: FeedbackResponseStatistic[]): void {
+    const sourceToFrequencyMap: Map<string, number> = statistics
       .reduce((acc: Map<string, number>, stats: FeedbackResponseStatistic) => {
-          const accurateDate: Date = new Date(stats.time);
-          accurateDate.setMinutes(0, 0, 0);
-          // accurateDate.setHours(0, 0, 0, 0);
-          const dateString: string = accurateDate.toString();
-          const accCount = acc.get(dateString) || 0;
-          return acc.set(dateString, (accCount + stats.count))
-        },
-        new Map<string, number>());
-    console.log("sourceToFrequencyMap", sourceToFrequencyMap)
-    this.chartResult = [];
+        const accurateDate: Date = new Date(stats.time);
+        accurateDate.setMinutes(0, 0, 0);
+        // accurateDate.setHours(0, 0, 0, 0);
+        const dateString: string = accurateDate.toString();
+        const accCount: number = acc.get(dateString) || 0;
+        return acc.set(dateString, (accCount + stats.count));
+      }, new Map<string, number>());
+
     sourceToFrequencyMap.forEach((value: number, key: string) => {
       this.chartResult.push({ timestamp: new Date(key), numberOfTimes: value });
     });
-
-    
   }
-
 }

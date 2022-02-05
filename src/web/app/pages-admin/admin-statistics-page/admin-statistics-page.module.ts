@@ -20,7 +20,7 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     AdminStatisticsPageComponent,
-    StatisticsChartComponent
+    StatisticsChartComponent,
   ],
   exports: [
     AdminStatisticsPageComponent,

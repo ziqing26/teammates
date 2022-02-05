@@ -144,7 +144,7 @@ public class FergusTest extends DatastoreClient {
 
     public static void generateResponses() {
         int STARTING_ID = 1;
-        int NUMBER_OF_FEEDBACK_QUESTIONS = 1000;
+        int NUMBER_OF_FEEDBACK_QUESTIONS = 100000;
         int CHUNKER = 10; // Prevent Java heap overflow
         for (int i = 0; i < CHUNKER; i++) {
             FeedbackResponse[] arr = new FeedbackResponse[NUMBER_OF_FEEDBACK_QUESTIONS / CHUNKER];
@@ -202,7 +202,7 @@ public class FergusTest extends DatastoreClient {
         generateResponses();
         // countAndCreateStatisticsObject();
         // getIntervalResponseCount(); //
-        getTotalResponseCount();
+        // getTotalResponseCount();
         // getTotalStatisticsObjectCount();
 
         // generateResponsesNow();

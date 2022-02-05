@@ -1,12 +1,14 @@
-import { Component, ElementRef, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import * as d3 from 'd3';
-// import moment from 'moment-timezone';
 import { StatisticsChartDataModel } from './ststistics-chart-model';
 
+/**
+ * Time series graph.
+ */
 @Component({
   selector: 'tm-statistics-chart',
   templateUrl: './statistics-chart.component.html',
-  styleUrls: ['./statistics-chart.component.scss']
+  styleUrls: ['./statistics-chart.component.scss'],
 })
 export class StatisticsChartComponent implements OnInit, OnChanges {
 
@@ -24,15 +26,12 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
   private yAxis: any;
   private xAxis: any;
   private lineGroup: any;
+  private bisect: any;
+  private format: any = d3.timeFormat('%Y-%m-%d %H:%M');
 
-  private format: any = d3.timeFormat("%Y-%m-%d %H:%M");
-
-  // console.log(format(new Date(1075611600000))); // returns a string
-
-  constructor(private chartElem: ElementRef) { }
+  constructor() { }
 
   ngOnInit(): void {
-    // this.data.map((d: StatisticsChartDataModel) => { return {timestamp: this.format(d.timestamp), count: d.numberOfTimes}});
     this.createSvg();
     this.drawChart();
   }
@@ -46,25 +45,21 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
   private createSvg(): void {
     this.width = (document.getElementById('linechart') as HTMLInputElement).offsetWidth - (this.margin * 2);
     this.height = (document.getElementById('linechart') as HTMLInputElement).offsetHeight - (this.margin * 2);
-    
     this.svg = d3
       .select('figure#linechart')
       .append('svg')
       .attr('width', this.width + (this.margin * 2))
       .attr('height', this.height + (this.margin * 2));
-      // .renderArea(true)
-      // .mouseZoomable(true);
 
     this.svgInner = this.svg
       .append('g')
       .attr('class', 'chart')
-      .style('transform', 'translate(' + this.margin + 'px, ' + this.margin + 'px)');
+      .style('transform', `translate(${this.margin}px, ${this.margin}px)`);
 
     this.chart = this.svg.append('g')
       .attr('class', 'chart')
       .attr('transform', `translate(${this.margin}, ${this.margin})`);
 
-    console.log("this.data", this.data);
     this.yScale = d3
       .scaleLinear()
       .domain([d3.extent(this.data, (d: StatisticsChartDataModel) => d.numberOfTimes)])
@@ -78,43 +73,34 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
       .append('g')
       .attr('id', 'y-axis')
       .attr('class', 'chart')
-      .style('transform','translate(' + this.margin + 'px, 0)');
+      .style('transform', `translate(${this.margin}px, 0)`);
 
     this.xAxis = this.chart
       .append('g')
       .attr('id', 'x-axis')
       .attr('class', 'chart')
-      .style('transform', 'translate(0, ' + (this.height - 2 * this.margin) + 'px)');
-
-    console.log("createSVG");
+      .style('transform', `translate(0, ${(this.height - 2 * this.margin)}px)`);
   }
 
   private drawChart(): void {
-    if (this.lineGroup) {
-      this.lineGroup.remove();
-    }
-    console.log("drawChart");
     this.yScale = d3
-    .scaleLinear()
-    .domain([0, d3.max(this.data, (d: StatisticsChartDataModel) => d.numberOfTimes)])
-    .range([this.height - 2 * this.margin, 0]);
+      .scaleLinear()
+      .domain([0, d3.max(this.data, (d: StatisticsChartDataModel) => d.numberOfTimes)])
+      .range([this.height - 2 * this.margin, 0]);
 
     this.xScale = d3.scaleTime()
       .domain(d3.extent(this.data, (d: StatisticsChartDataModel) => d.timestamp))
       .rangeRound([0, this.width]);
-    
-      d3.select('svg').data(this.data).exit().remove();
-
 
     this.changeTimeFormat();
 
-    const xAxis = d3.axisBottom(this.xScale)
+    const xAxis: any = d3.axisBottom(this.xScale)
       .ticks(10)
       .tickFormat(this.format);
     this.xScale.range([this.margin, this.width - 2 * this.margin]);
     this.xAxis.call(xAxis);
 
-    const yAxis = d3.axisLeft(this.yScale);
+    const yAxis: any = d3.axisLeft(this.yScale);
 
     this.yAxis.call(yAxis);
 
@@ -127,13 +113,10 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
       .style('background', '#000')
       .style('border-radius', '5px')
       .style('color', '#fff');
-    
     const update: any = this.chart.selectAll('line').data(this.data);
-
     update.exit().remove();
-    //============
 
-    this.lineGroup = 
+    this.lineGroup =
       update
       .enter()
       .append('g')
@@ -142,13 +125,12 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
       .attr('id', 'line')
       .style('fill', 'none')
       .style('stroke', 'steelblue')
-      .style('stroke-width', '2px');
+      .style('stroke-width', '3px');
 
-    this.width = this.chartElem.nativeElement.getBoundingClientRect().width;
-    this.svg.attr('width', this.width);
+    // // This allows to find the closest X index of the mouse:
+    this.bisect = d3.bisector((d: StatisticsChartDataModel) => d.timestamp).left;
 
-
-    const line = d3.line()
+    const line: any = d3.line()
       .x((d: any) => d[0])
       .y((d: any) => d[1]);
       // .curve(d3.curveMonotoneX);
@@ -161,25 +143,37 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
     this.lineGroup
       .attr('class', 'line')
       .attr('d', line(points))
-      .on('mouseover', (d: StatisticsChartDataModel) =>
+      .on('mouseover', () => {
+        const x0: any = this.xScale.invert(d3.mouse(d3.event.currentTarget)[0]);
+        const i: number = this.bisect(this.data, x0, 1);
+        const selectedData: StatisticsChartDataModel = this.data[i];
         tooltip
-          .html(`Time: ${d.timestamp} <br> Count: ${d.numberOfTimes}`)
-          .style('visibility', 'visible'))
+          .html(`Time: ${selectedData.timestamp} <br> Count: ${selectedData.numberOfTimes}`)
+          .style('visibility', 'visible');
+      })
+      .on('mousemove', () => {
+        const top: number = d3.event.pageY - 10;
+        const left: number = d3.event.pageX + 10;
+        tooltip
+          .style('top', `${top}px`)
+          .style('left', `${left}px`);
+      })
       .on('mouseout', () => tooltip.html('').style('visibility', 'hidden'));
   }
 
-  private changeTimeFormat() {
-    const diffTime: number = d3.max(this.data, (d: StatisticsChartDataModel) => d.timestamp) - d3.min(this.data, (d: StatisticsChartDataModel) => d.timestamp);
-    const diffDays: number = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+  private changeTimeFormat(): void {
+    const diffTime: number = d3.max(this.data, (d: StatisticsChartDataModel) => d.timestamp)
+      - d3.min(this.data, (d: StatisticsChartDataModel) => d.timestamp);
+    const diffDays: number = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
     if (diffDays <= 1) {
-      this.format = d3.timeFormat("%H:%M");
+      this.format = d3.timeFormat('%H:%M');
     } else if (diffDays < 14) {
-      this.format = d3.timeFormat("%b-%d %H%p");
+      this.format = d3.timeFormat('%b-%d %H%p');
     } else if (diffDays <= 60) {
-      this.format = d3.timeFormat("%b-%d");
+      this.format = d3.timeFormat('%b-%d');
     } else {
-      this.format = d3.timeFormat("%y %b")
+      this.format = d3.timeFormat('%y %b');
     }
   }
-
 }

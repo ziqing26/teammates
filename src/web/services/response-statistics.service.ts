@@ -3,8 +3,8 @@ import { Observable } from 'rxjs';
 import { ResourceEndpoints } from '../types/api-const';
 import {
   ActionClasses,
-  QueryLogsParams,
   FeedbackResponseStatistics,
+  QueryLogsParams,
 } from '../types/api-output';
 import { HttpRequestService } from './http-request.service';
 
@@ -12,7 +12,7 @@ import { HttpRequestService } from './http-request.service';
  * Handles response statistics provision.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ResponseStatisticsService {
 
