@@ -8,10 +8,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.LoadType;
+import com.googlecode.objectify.cmd.Query;
 
 import teammates.common.datatransfer.attributes.FeedbackResponseStatisticAttributes;
 import teammates.storage.entity.FeedbackResponse;
@@ -84,34 +87,43 @@ public class FeedbackResponseStatisticsDb extends EntitiesDb<FeedbackResponseSta
      */
 	public List<FeedbackResponseStatisticAttributes> getFeedbackResponseStatisticsInInterval(Instant startTime,
 			Instant endTime, FeedbackResponseStatisticsType intervalType) {
-		assert intervalType == FeedbackResponseStatisticsType.MINUTE || intervalType == FeedbackResponseStatisticsType.HOUR;
-        // Query<FeedbackResponseStatisticMinute> query = this.load().filterKey("time >= ", startTime)
-        //         .filterKey("time <=", endTime);
+		assert intervalType == FeedbackResponseStatisticsType.MINUTE
+				|| intervalType == FeedbackResponseStatisticsType.HOUR;
+		
+		// Query<FeedbackResponseStatistic> query = load().filter("intervalType =", intervalType.getValue());
+		
+		Query<FeedbackResponseStatistic> query = load().filter("intervalType =", intervalType.getValue())
+				.filterKey(">= ", Key.create(FeedbackResponseStatistic.class, startTime.getEpochSecond()))
+				.filterKey("<=", Key.create(FeedbackResponseStatistic.class, endTime.getEpochSecond()));
+		
+		List<FeedbackResponseStatistic> stats = query.list();
 
-        // List<FeedbackResponseStatisticAttributes> statistics = StreamSupport.stream(query.spliterator(), false)
-		// 		.map(stats -> makeAttributes(stats))
-		// 		.collect(Collectors.toList());
+		System.out.println(stats.size());
+		System.out.println(startTime.getEpochSecond());
+		System.out.println(endTime.getEpochSecond());
 
-		Random rng = new Random();
-		List<FeedbackResponseStatisticAttributes> statistics = new ArrayList<>();
-		Duration timeDifference = Duration.between(startTime, endTime);
+		List<FeedbackResponseStatisticAttributes> statistics = makeAttributes(stats);
 
-		long intervals;
-		ChronoUnit timeUnit;
-		if (intervalType == FeedbackResponseStatisticsType.MINUTE) {
-			intervals = timeDifference.toMinutes();
-			timeUnit = ChronoUnit.MINUTES;
-		} else {
-			intervals = timeDifference.toHours();
-			timeUnit = ChronoUnit.HOURS;
-		}
+		// Random rng = new Random();
+		// List<FeedbackResponseStatisticAttributes> statistics = new ArrayList<>();
+		// Duration timeDifference = Duration.between(startTime, endTime);
 
-		for (long i = 0; i <= intervals; i++) {
-			long time = startTime.plus(i, timeUnit).getEpochSecond();
-			int count = rng.nextInt(100);
-			FeedbackResponseStatistic statisticEntity = new FeedbackResponseStatistic(time, count, intervalType);
-			statistics.add(makeAttributes(statisticEntity));
-		}
+		// long intervals;
+		// ChronoUnit timeUnit;
+		// if (intervalType == FeedbackResponseStatisticsType.MINUTE) {
+		// 	intervals = timeDifference.toMinutes();
+		// 	timeUnit = ChronoUnit.MINUTES;
+		// } else {
+		// 	intervals = timeDifference.toHours();
+		// 	timeUnit = ChronoUnit.HOURS;
+		// }
+
+		// for (long i = 0; i <= intervals; i++) {
+		// 	long time = startTime.plus(i, timeUnit).getEpochSecond();
+		// 	int count = rng.nextInt(100);
+		// 	FeedbackResponseStatistic statisticEntity = new FeedbackResponseStatistic(time, count, intervalType);
+		// 	statistics.add(makeAttributes(statisticEntity));
+		// }
 				
 		return statistics;
     }

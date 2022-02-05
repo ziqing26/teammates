@@ -88,8 +88,7 @@ export class AdminStatisticsPageComponent implements OnInit {
       this.formModel.statisticsDateFrom, this.formModel.statisticsTimeFrom);
     const timestampUntil: number = this.timezoneService.resolveLocalDateTime(
       this.formModel.statisticsDateTo, this.formModel.statisticsTimeFrom);
-    
-    this.searchForStatistics(timestampFrom, timestampUntil);
+      this.searchForStatistics(timestampFrom / 1000, timestampUntil / 1000);
   }
 
 
@@ -108,7 +107,8 @@ export class AdminStatisticsPageComponent implements OnInit {
         this.hasResult = true;
       }),
     )
-    .subscribe((statisticsResults: FeedbackResponseStatistics) => {
+      .subscribe((statisticsResults: FeedbackResponseStatistics) => {
+      console.log(timestampFrom / 1000, timestampUntil / 1000);
       console.log("statisticsResults", statisticsResults)
       this.processStatisticsForGraph(statisticsResults.statistics)
     },

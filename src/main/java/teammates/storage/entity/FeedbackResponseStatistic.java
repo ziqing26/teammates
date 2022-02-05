@@ -11,12 +11,13 @@ import com.googlecode.objectify.annotation.Translate;
 @Entity
 public class FeedbackResponseStatistic extends BaseEntity {
 	@Id
-    // Represents the start of the interval
+    // Represents the start of the interval in epoch seconds
     private long time;
 
     @Index
     private int count;
 
+    @Index
     // Represents the size of interval
     private FeedbackResponseStatisticsType intervalType;
 
