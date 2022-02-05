@@ -199,10 +199,10 @@ public class FergusTest extends DatastoreClient {
 
     @Override
     protected void doOperation() {
-        // generateResponses();
+        generateResponses();
         // countAndCreateStatisticsObject();
         // getIntervalResponseCount(); //
-        // getTotalResponseCount();
+        getTotalResponseCount();
         // getTotalStatisticsObjectCount();
 
         // generateResponsesNow();

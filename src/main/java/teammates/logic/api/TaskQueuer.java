@@ -280,8 +280,12 @@ public class TaskQueuer {
         paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_ENDTIME, Long.toString(endOfInterval.toEpochMilli()));
         paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_TYPE, intervalType.getValue());
 
-        addCloudTask(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME,
+        addTask(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME,
                     TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL,
-                    paramMap, null);
+                paramMap, null);
+/*         addCloudTask(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME,
+                TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL,
+                paramMap, null);
+ */
     }
 }
