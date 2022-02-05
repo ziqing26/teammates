@@ -37,7 +37,7 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(): void {
-    if (this.svgInner) {
+    if (this.chart) {
       this.drawChart();
     }
   }

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { finalize } from 'rxjs/operators';
+import { interval } from 'rxjs';
+import { finalize, takeWhile } from 'rxjs/operators';
 import { ResponseStatisticsService } from '../../../services/response-statistics.service';
 import { StatusMessageService } from '../../../services/status-message.service';
 import { TimezoneService } from '../../../services/timezone.service';
@@ -39,12 +40,15 @@ export class AdminStatisticsPageComponent implements OnInit {
   };
   queryParams: Partial<QueryLogsParams> = { startTime: 0, endTime: 0 };
   dateToday: DateFormat = { year: 0, month: 0, day: 0 };
+  timeNow: TimeFormat = { hour: 0, minute: 0 };
   earliestSearchDate: DateFormat = { year: 0, month: 0, day: 0 };
   chartResult: StatisticsChartDataModel[] = [];
   isLoading: boolean = false;
   isSearching: boolean = false;
   hasResult: boolean = false;
   statisticsMap: Map<string, number> = new Map<string, number>();
+  intervalId: any;
+  timeInterval: number = 60 * 1000 + 500;
 
   constructor(
     private timezoneService: TimezoneService,
@@ -60,7 +64,7 @@ export class AdminStatisticsPageComponent implements OnInit {
     this.dateToday.day = now.getDate();
 
     // Start with response statistics from yesterday
-    const fromDate: Date = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const fromDate: Date = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     this.formModel.statisticsDateFrom = {
       year: fromDate.getFullYear(),
@@ -73,13 +77,32 @@ export class AdminStatisticsPageComponent implements OnInit {
     this.formModel.statisticsTimeTo = { hour: now.getHours(), minute: now.getMinutes() };
   }
 
+  ngOnDestroy() {
+    clearInterval(this.intervalId);
+  }
+
   generateGraph(): void {
     this.chartResult = [];
-    const timestampFrom: number = this.timezoneService.resolveLocalDateTime(
+    let timestampFrom: number = this.timezoneService.resolveLocalDateTime(
       this.formModel.statisticsDateFrom, this.formModel.statisticsTimeFrom);
-    const timestampUntil: number = this.timezoneService.resolveLocalDateTime(
+    let timestampUntil: number = this.timezoneService.resolveLocalDateTime(
       this.formModel.statisticsDateTo, this.formModel.statisticsTimeFrom);
-      this.searchForStatistics(timestampFrom / 1000, timestampUntil / 1000);
+    this.searchForStatistics(timestampFrom / 1000, timestampUntil / 1000);
+
+    // query for real time statistics
+    let dateTimeNow: number = this.timezoneService.resolveLocalDateTime(
+      this.dateToday, this.timeNow);
+
+    if (timestampUntil >= dateTimeNow) {
+      this.intervalId = setInterval(() => {
+          console.log(new Date(timestampUntil))
+          console.log("one minute has passed");
+          timestampFrom = timestampUntil;
+          timestampUntil += this.timeInterval;
+          dateTimeNow += this.timeInterval;
+          this.searchForStatistics(timestampFrom / 1000, timestampUntil / 1000);
+        }, this.timeInterval);
+    }
   }
 
   searchForStatistics(timestampFrom: number, timestampUntil: number): void {
@@ -98,6 +121,7 @@ export class AdminStatisticsPageComponent implements OnInit {
       }),
     )
     .subscribe((statisticsResults: FeedbackResponseStatistics) => {
+      console.log("stats from backend", statisticsResults.statistics);
       this.processStatisticsForGraph(statisticsResults.statistics);
     },
       (e: ErrorMessageOutput) => this.statusMessageService.showErrorToast(e.error.message));
@@ -105,14 +129,13 @@ export class AdminStatisticsPageComponent implements OnInit {
   private processStatisticsForGraph(statistics: FeedbackResponseStatistic[]): void {
     const sourceToFrequencyMap: Map<string, number> = statistics
       .reduce((acc: Map<string, number>, stats: FeedbackResponseStatistic) => {
-        const accurateDate: Date = new Date(stats.time);
-        accurateDate.setMinutes(0, 0, 0);
-        // accurateDate.setHours(0, 0, 0, 0);
+        const accurateDate: Date = new Date(stats.time * 1000);
+        // accurateDate.setSeconds(0, 0);
         const dateString: string = accurateDate.toString();
         const accCount: number = acc.get(dateString) || 0;
         return acc.set(dateString, (accCount + stats.count));
       }, new Map<string, number>());
-
+    console.log("sourceToFrequencyMap", sourceToFrequencyMap);
     sourceToFrequencyMap.forEach((value: number, key: string) => {
       this.chartResult.push({ timestamp: new Date(key), numberOfTimes: value });
     });
