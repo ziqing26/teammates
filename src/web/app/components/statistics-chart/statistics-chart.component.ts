@@ -25,13 +25,8 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
   private xAxis: any;
   private lineGroup: any;
 
-  private format: any = d3.timeFormat("%Y-%m-%d");
+  private format: any = d3.timeFormat("%Y-%m-%d %H:%M");
 
-//   private dynamicDateFormat = d3.timeFormat([
-//     [d3.time.format("%Y"), function() { return true; }],// <-- how to display when Jan 1 YYYY
-//     [d3.time.format("%b %Y"), function(d) { return d.getMonth(); }],
-//     [function(){return "";}, function(d) { return d.getDate() != 1; }]
-// ]);
   // console.log(format(new Date(1075611600000))); // returns a string
 
   constructor(private chartElem: ElementRef) { }
@@ -43,7 +38,7 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(): void {
-    if (this.chart) {
+    if (this.svgInner) {
       this.drawChart();
     }
   }
@@ -65,69 +60,96 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
       .attr('class', 'chart')
       .style('transform', 'translate(' + this.margin + 'px, ' + this.margin + 'px)');
 
-    console.log('width', this.width);
-    console.log('margin', this.margin);
-    // const dataXrange = d3.extent(this.data, (d: any) => d.timestamp);
-    // const dataYrange = [ 0, d3.max(this.data, (d: any) => d.count)];
+    this.chart = this.svg.append('g')
+      .attr('class', 'chart')
+      .attr('transform', `translate(${this.margin}, ${this.margin})`);
 
-    // const minDate = dataXrange[0];
-    // const maxDate = dataYrange[1];
-
-    // this.svg = d3.select('linechart')
-    //   .append('svg')
-    //   .attr('width', this.width + (this.margin * 2))
-    //   .attr('height', this.height + (this.margin * 2));
-
-    // this.chart = this.svg.append('g')
-    //   .attr('class', 'linechart')
-    //   .attr('transform', `translate(${this.margin}, ${this.margin})`);
-
+    console.log("this.data", this.data);
     this.yScale = d3
       .scaleLinear()
-      .domain([0, d3.max(this.data, (d: StatisticsChartDataModel) => d.numberOfTimes)])
+      .domain([d3.extent(this.data, (d: StatisticsChartDataModel) => d.numberOfTimes)])
       .range([this.height - 2 * this.margin, 0]);
 
     this.xScale = d3.scaleTime()
       .domain(d3.extent(this.data, (d: StatisticsChartDataModel) => d.timestamp))
       .rangeRound([0, this.width]);
 
-    this.yAxis = this.svgInner
+    this.yAxis = this.chart
       .append('g')
       .attr('id', 'y-axis')
+      .attr('class', 'chart')
       .style('transform','translate(' + this.margin + 'px, 0)');
 
-    this.xAxis = this.svgInner
+    this.xAxis = this.chart
       .append('g')
       .attr('id', 'x-axis')
+      .attr('class', 'chart')
       .style('transform', 'translate(0, ' + (this.height - 2 * this.margin) + 'px)');
-    
-    this.lineGroup = this.svgInner
-      .append('g')
-      .append('path')
-      .attr('id', 'line')
-      .style('fill', 'none')
-      .style('stroke', 'steelblue')
-      .style('stroke-width', '2px');
+
+    console.log("createSVG");
   }
 
   private drawChart(): void {
-    this.width = this.chartElem.nativeElement.getBoundingClientRect().width;
-    this.svg.attr('width', this.width);
+    if (this.lineGroup) {
+      this.lineGroup.remove();
+    }
+    console.log("drawChart");
+    this.yScale = d3
+    .scaleLinear()
+    .domain([0, d3.max(this.data, (d: StatisticsChartDataModel) => d.numberOfTimes)])
+    .range([this.height - 2 * this.margin, 0]);
 
-    this.xScale.range([this.margin, this.width - 2 * this.margin]);
+    this.xScale = d3.scaleTime()
+      .domain(d3.extent(this.data, (d: StatisticsChartDataModel) => d.timestamp))
+      .rangeRound([0, this.width]);
+    
+      d3.select('svg').data(this.data).exit().remove();
+
+
+    this.changeTimeFormat();
 
     const xAxis = d3.axisBottom(this.xScale)
       .ticks(10)
       .tickFormat(this.format);
-
+    this.xScale.range([this.margin, this.width - 2 * this.margin]);
     this.xAxis.call(xAxis);
 
     const yAxis = d3.axisLeft(this.yScale);
 
     this.yAxis.call(yAxis);
 
+    const tooltip: any = d3.select('body')
+      .append('div')
+      .style('position', 'absolute')
+      .style('z-index', '10')
+      .style('visibility', 'hidden')
+      .style('padding', '10px')
+      .style('background', '#000')
+      .style('border-radius', '5px')
+      .style('color', '#fff');
+    
+    const update: any = this.chart.selectAll('line').data(this.data);
+
+    update.exit().remove();
+    //============
+
+    this.lineGroup = 
+      update
+      .enter()
+      .append('g')
+      .append('path')
+      .attr('class', '.chart')
+      .attr('id', 'line')
+      .style('fill', 'none')
+      .style('stroke', 'steelblue')
+      .style('stroke-width', '2px');
+
+    this.width = this.chartElem.nativeElement.getBoundingClientRect().width;
+    this.svg.attr('width', this.width);
+
+
     const line = d3.line()
-      .x((d:any) => d[0])
+      .x((d: any) => d[0])
       .y((d: any) => d[1]);
       // .curve(d3.curveMonotoneX);
 
@@ -136,8 +158,28 @@ export class StatisticsChartComponent implements OnInit, OnChanges {
       this.yScale(d.numberOfTimes),
     ]);
 
-    this.lineGroup.attr('d', line(points));
+    this.lineGroup
+      .attr('class', 'line')
+      .attr('d', line(points))
+      .on('mouseover', (d: StatisticsChartDataModel) =>
+        tooltip
+          .html(`Time: ${d.timestamp} <br> Count: ${d.numberOfTimes}`)
+          .style('visibility', 'visible'))
+      .on('mouseout', () => tooltip.html('').style('visibility', 'hidden'));
+  }
 
+  private changeTimeFormat() {
+    const diffTime: number = d3.max(this.data, (d: StatisticsChartDataModel) => d.timestamp) - d3.min(this.data, (d: StatisticsChartDataModel) => d.timestamp);
+    const diffDays: number = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    if (diffDays <= 1) {
+      this.format = d3.timeFormat("%H:%M");
+    } else if (diffDays < 14) {
+      this.format = d3.timeFormat("%b-%d %H%p");
+    } else if (diffDays <= 60) {
+      this.format = d3.timeFormat("%b-%d");
+    } else {
+      this.format = d3.timeFormat("%y %b")
+    }
   }
 
 }
