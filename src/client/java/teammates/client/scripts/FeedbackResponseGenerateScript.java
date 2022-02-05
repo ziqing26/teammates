@@ -11,11 +11,10 @@ import teammates.storage.entity.FeedbackResponse;
 import teammates.storage.entity.FeedbackResponseStatistic;
 
 /**
- * 
+ * Generates, queries and deletes time-specific feedback response objects.
  */
-public class FergusTest extends DatastoreClient {
+public class FeedbackResponseGenerateScript extends DatastoreClient {
 
-    // Runs the test
     private static final int HOUR = 60 * 60;
     private static final int WEEK = HOUR * 24 * 7;
     private static final int MONTH = WEEK * 4;
@@ -25,13 +24,7 @@ public class FergusTest extends DatastoreClient {
 
     private static final String STUDENT_EMAIL = "studentEmail@gmail.tmt";
 
-    private static final String GIVER_SECTION_NAME = "Section 1";
-
     private static final String FEEDBACK_SESSION_NAME = "Test Feedback Session";
-
-    private static final String FEEDBACK_QUESTION_ID = "QuestionTest";
-
-    private static final int YEAR_TO_START_CREATION = 2022;
 
     private static final int NUMBER_OF_FEEDBACK_QUESTIONS = 100000;
 
@@ -39,7 +32,7 @@ public class FergusTest extends DatastoreClient {
 
     private static final int STARTING_ID = 1;
 
-    private FergusTest() {
+    private FeedbackResponseGenerateScript() {
     }
 
     /**
@@ -93,13 +86,13 @@ public class FergusTest extends DatastoreClient {
     }
 
     /**
-     * Generates responses now.
+     * Generates responses with createdAt at this time.
      */
     public static void generateResponsesNow() {
         FeedbackResponse[] arr = new FeedbackResponse[NUMBER_OF_FEEDBACK_QUESTIONS];
         int startingId = STARTING_ID;
         for (int i = 0; i < NUMBER_OF_FEEDBACK_QUESTIONS; i++) {
-            int randomNumber = (int) (Math.random() * YEAR);
+            int randomNumber = (int) (Math.random() * i);
             startingId++;
             FeedbackResponse feedback = new FeedbackResponse(FEEDBACK_SESSION_NAME, COURSE_ID,
                     generateId(Integer.toString(randomNumber), Integer.toString(startingId)),
@@ -121,18 +114,16 @@ public class FergusTest extends DatastoreClient {
     @Override
     protected void doOperation() {
         generateResponses();
-        // getIntervalResponseCount();
-        getTotalResponseCount();
-        // getTotalStatisticsObjectCount();
-
         // generateResponsesNow();
-        // deleteAllResponses();
+        getTotalResponseCount();
+
+        deleteAllResponses();
     }
 
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
         System.out.println("Start timer at " + startTime);
-        new FergusTest().doOperationRemotely();
+        new FeedbackResponseGenerateScript().doOperationRemotely();
         long endTime = System.currentTimeMillis();
         System.out.println("That took " + (endTime - startTime) + " milliseconds or " + ((endTime - startTime) / 1000)
                 + " seconds or " + (((endTime - startTime) / 1000) / 60 + " minutes."));
