@@ -1,10 +1,12 @@
 package teammates.logic.api;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import teammates.common.util.Config;
+import teammates.common.util.Const;
 import teammates.common.util.Const.ParamsNames;
 import teammates.common.util.Const.TaskQueue;
 import teammates.common.util.EmailWrapper;
@@ -13,6 +15,7 @@ import teammates.common.util.TaskWrapper;
 import teammates.logic.core.GoogleCloudTasksService;
 import teammates.logic.core.LocalTaskQueueService;
 import teammates.logic.core.TaskQueueService;
+import teammates.storage.entity.FeedbackResponseStatisticsType;
 import teammates.ui.request.FeedbackSessionRemindRequest;
 import teammates.ui.request.SendEmailRequest;
 
@@ -24,7 +27,7 @@ public class TaskQueuer {
     private static final Logger log = Logger.getLogger();
 
     private static final TaskQueuer instance = new TaskQueuer();
-    private final TaskQueueService service;
+    private TaskQueueService service;
 
     TaskQueuer() {
         if (Config.isDevServer()) {
@@ -47,9 +50,16 @@ public class TaskQueuer {
     }
 
     void addDeferredTask(String queueName, String workerUrl, Map<String, String> paramMap, Object requestBody,
-                         long countdownTime) {
+            long countdownTime) {
+        service = new LocalTaskQueueService();
         TaskWrapper task = new TaskWrapper(queueName, workerUrl, paramMap, requestBody);
         service.addDeferredTask(task, countdownTime);
+    }
+
+    void addCloudTask(String queueName, String workerUrl, Map<String, String> paramMap, Object requestBody) {
+        service = new GoogleCloudTasksService();
+        TaskWrapper task = new TaskWrapper(queueName, workerUrl, paramMap, requestBody);
+        service.addDeferredTask(task, 0);
     }
 
     // The following methods are the actual API methods to be used by the client classes
@@ -266,4 +276,32 @@ public class TaskQueuer {
         }
     }
 
+    /**
+     * Schedules for the search indexing of the student identified by {@code courseId} and {@code email}.
+     * @param startOfInterval time of start of creation
+     * @param intervalType the type of interval of the feedback response statistic
+     */
+    public void scheduleFeedbackResponseStatisticsCreation(Instant startOfInterval,
+            FeedbackResponseStatisticsType intervalType) {
+        Map<String, String> paramMap = new HashMap<>();
+
+        Instant endOfInterval;
+        if (intervalType == FeedbackResponseStatisticsType.HOUR) {
+            endOfInterval = startOfInterval.plusSeconds(Const.HOUR_IN_SECONDS);
+        } else {
+            endOfInterval = startOfInterval.plusSeconds(Const.MINUTE_IN_SECONDS);
+        }
+
+        paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_STARTIME, Long.toString(startOfInterval.toEpochMilli()));
+        paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_ENDTIME, Long.toString(endOfInterval.toEpochMilli()));
+        paramMap.put(ParamsNames.FEEDBACK_RESPONSE_STATISTIC_TYPE, intervalType.getValue());
+
+        addTask(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME,
+                    TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL,
+                paramMap, null);
+        /*addCloudTask(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME,
+                TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL,
+                paramMap, null);
+        */
+    }
 }

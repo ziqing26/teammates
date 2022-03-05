@@ -1,0 +1,55 @@
+<h1>Statistics</h1>
+<p>This page allows you to view the response statistics in the past.</p>
+
+<div class="card bg-form no-border">
+  <div class="card-body">
+    <div class="row form-group">
+      <div class="col-6">
+        <div class="col-12 mb-1">
+          <label for="statistics-from-datepicker" class="font-weight-bold">Search period from</label>
+        </div>
+        <div class="input-group">
+          <div class="col-md-6 input-group">
+            <input id="statistics-from-datepicker" type="text" class="form-control" ngbDatepicker [maxDate]="dateToday" [(ngModel)]="formModel.statisticsDateFrom" #logsFromDp="ngbDatepicker"/>
+            <button class="btn btn-light" (click)="logsFromDp.toggle()" type="button">
+              <i class="fas fa-calendar-alt"></i>
+            </button>
+          </div>
+          <div id="statistics-from-timepicker" class="col-md-3">
+            <ngb-timepicker [(ngModel)]="formModel.statisticsTimeFrom" [spinners]="false"></ngb-timepicker>
+          </div>
+        </div>
+        <div class="col-12 mb-1 mt-4">
+          <label for="statistics-to-datepicker" class="font-weight-bold">Search period until</label>
+        </div>
+        <div class="input-group">
+          <div class="col-md-6 input-group">
+            <input id="statistics-to-datepicker" type="text" class="form-control" ngbDatepicker [maxDate]="dateToday" [(ngModel)]="formModel.statisticsDateTo" #logsToDp="ngbDatepicker"/>
+            <button class="btn btn-light" (click)="logsToDp.toggle()" type="button">
+              <i class="fas fa-calendar-alt"></i>
+            </button>
+          </div>
+          <div id="statistics-to-timepicker" class="col-md-3">
+            <ngb-timepicker [(ngModel)]="formModel.statisticsTimeTo" [spinners]="false"></ngb-timepicker>
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="col-1 ml-4 mt-4">
+          <button id="query-button" class="float-right btn btn-primary" (click)="generateGraph()">Generate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="hasResult">
+  <div id="linechart" style="height: 400px; width: 100%;" *tmIsLoading="isSearching">
+    <tm-statistics-chart [data]="chartResult" *ngIf="chartResult.length>0; else noDataMessage"></tm-statistics-chart>
+  </div>
+  <ng-template #noDataMessage>
+    <div class="no-data-message">
+      There are no student response in this time period.
+    </div>
+  </ng-template>
+</div>

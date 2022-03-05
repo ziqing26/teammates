@@ -68,6 +68,7 @@ public final class ActionFactory {
         map(ResourceURIs.RESPONSE_COMMENT, PUT, UpdateFeedbackResponseCommentAction.class);
         map(ResourceURIs.RESPONSE_COMMENT, DELETE, DeleteFeedbackResponseCommentAction.class);
         map(ResourceURIs.RESULT, GET, GetSessionResultsAction.class);
+        map(ResourceURIs.RESPONSE_STATISTICS, GET, GetFeedbackResponseStatisticsAction.class);
 
         //STUDENTS APIs
         map(ResourceURIs.STUDENTS, GET, GetStudentsAction.class);
@@ -138,6 +139,10 @@ public final class ActionFactory {
         map(CronJobURIs.AUTOMATED_FEEDBACK_PUBLISHED_REMINDERS, GET, FeedbackSessionPublishedRemindersAction.class);
         map(CronJobURIs.AUTOMATED_FEEDBACK_OPENING_SOON_REMINDERS, GET,
                 FeedbackSessionOpeningSoonRemindersAction.class);
+        map(CronJobURIs.AUTOMATED_FEEDBACK_STATISTICS_HOUR, GET,
+                FeedbackResponseStatisticsCountHourAction.class);
+        map(CronJobURIs.AUTOMATED_FEEDBACK_STATISTICS_MINUTE, GET,
+                FeedbackResponseStatisticsCountMinuteAction.class);
 
         // Task queue workers; use POST request
         // Reference: https://cloud.google.com/tasks/docs/creating-appengine-tasks
@@ -150,6 +155,8 @@ public final class ActionFactory {
                 FeedbackSessionRemindParticularUsersEmailWorkerAction.class);
         map(TaskQueue.FEEDBACK_SESSION_UNPUBLISHED_EMAIL_WORKER_URL, POST,
                 FeedbackSessionUnpublishedEmailWorkerAction.class);
+        map(TaskQueue.FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL, POST,
+                FeedbackResponseStatisticsCountWorkerAction.class);
         map(TaskQueue.INSTRUCTOR_COURSE_JOIN_EMAIL_WORKER_URL, POST, InstructorCourseJoinEmailWorkerAction.class);
         map(TaskQueue.SEND_EMAIL_WORKER_URL, POST, SendEmailWorkerAction.class);
         map(TaskQueue.STUDENT_COURSE_JOIN_EMAIL_WORKER_URL, POST, StudentCourseJoinEmailWorkerAction.class);

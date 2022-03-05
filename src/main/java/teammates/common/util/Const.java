@@ -35,6 +35,11 @@ public final class Const {
     public static final Duration LOGS_RETENTION_PERIOD = Duration.ofDays(30);
     public static final Duration COOKIE_VALIDITY_PERIOD = Duration.ofDays(7);
 
+    public static final Duration FEEDBACK_SESSIONS_STATISTICS_SEARCH_WINDOW = Duration.ofMinutes(1);
+    public static final Duration FEEDBACK_STATISTIC_MINUTE_THRESHHOLD = Duration.ofDays(7);
+    public static final int MINUTE_IN_SECONDS = 60;
+    public static final int HOUR_IN_SECONDS = 60 * 60;
+
     public static final int SEARCH_QUERY_SIZE_LIMIT = 50;
 
     // These constants are used as variable values to mean that the variable is in a 'special' state.
@@ -121,6 +126,9 @@ public final class Const {
         public static final String FEEDBACK_SESSION_LOG_TYPE = "fsltype";
         public static final String FEEDBACK_SESSION_LOG_STARTTIME = "fslstarttime";
         public static final String FEEDBACK_SESSION_LOG_ENDTIME = "fslendtime";
+        public static final String FEEDBACK_RESPONSE_STATISTIC_STARTIME = "frsstarttime";
+        public static final String FEEDBACK_RESPONSE_STATISTIC_ENDTIME = "frsendtime";
+        public static final String FEEDBACK_RESPONSE_STATISTIC_TYPE = "frstype";
 
         public static final String FEEDBACK_QUESTION_ID = "questionid";
 
@@ -328,6 +336,7 @@ public final class Const {
         public static final String SEARCH_ACCOUNT_REQUESTS = URI_PREFIX + "/search/accountrequests";
         public static final String SEARCH_INSTRUCTORS = URI_PREFIX + "/search/instructors";
         public static final String SEARCH_STUDENTS = URI_PREFIX + "/search/students";
+        public static final String RESPONSE_STATISTICS = URI_PREFIX + "/statistics/response";
         public static final String BIN_SESSION = URI_PREFIX + "/bin/session";
         public static final String QUESTIONS = URI_PREFIX + "/questions";
         public static final String QUESTION = URI_PREFIX + "/question";
@@ -367,6 +376,10 @@ public final class Const {
                 URI_PREFIX + "/feedbackSessionClosingReminders";
         public static final String AUTOMATED_FEEDBACK_PUBLISHED_REMINDERS =
                 URI_PREFIX + "/feedbackSessionPublishedReminders";
+        public static final String AUTOMATED_FEEDBACK_STATISTICS_MINUTE =
+                URI_PREFIX + "/feedbackStatisticsMinute";
+        public static final String AUTOMATED_FEEDBACK_STATISTICS_HOUR =
+                URI_PREFIX + "/feedbackStatisticsHour";
     }
 
     /**
@@ -397,6 +410,11 @@ public final class Const {
                 "feedback-session-unpublished-email-queue";
         public static final String FEEDBACK_SESSION_UNPUBLISHED_EMAIL_WORKER_URL =
                 URI_PREFIX + "/feedbackSessionUnpublishedEmail";
+
+        public static final String FEEDBACK_RESPONSE_STATISTICS_CREATION_QUEUE_NAME =
+                "feedback-response-statistics-creation-queue";
+        public static final String FEEDBACK_RESPONSE_STATISTICS_CREATION_WORKER_URL =
+                URI_PREFIX + "/feedbackResponseStatisticsCreation";
 
         public static final String INSTRUCTOR_COURSE_JOIN_EMAIL_QUEUE_NAME = "instructor-course-join-email-queue";
         public static final String INSTRUCTOR_COURSE_JOIN_EMAIL_WORKER_URL = URI_PREFIX + "/instructorCourseJoinEmail";

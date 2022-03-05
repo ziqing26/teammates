@@ -64,3 +64,9 @@ queue:
   bucket_size: 10
   retry_parameters:
     min_backoff_seconds: 1
+- name: feedback-response-statistics-creation-queue
+  mode: push
+  rate: 50/s
+  bucket_size: 10
+  retry_parameters:
+    min_backoff_seconds: 1

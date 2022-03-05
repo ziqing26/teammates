@@ -49,3 +49,9 @@ indexes:
     name: sentOpeningSoonEmail
   - direction: asc
     name: startTime
+- kind: FeedbackResponseStatistic
+  properties:
+  - direction: asc
+    name: intervalType
+  - direction: asc
+    name: time
