@@ -340,6 +340,32 @@ public abstract class AppPage {
         textBoxElement.sendKeys(Keys.TAB); // blur the element to receive events
     }
 
+    protected void fillDatePicker(WebElement dateBox, Instant startInstant, String timeZone) {
+        WebElement buttonToOpenPicker = dateBox.findElement(By.tagName("button"));
+        click(buttonToOpenPicker);
+
+        WebElement datePicker = dateBox.findElement(By.tagName("ngb-datepicker"));
+        WebElement monthAndYearPicker = datePicker.findElement(By.tagName("ngb-datepicker-navigation-select"));
+        WebElement monthPicker = monthAndYearPicker.findElement(By.cssSelector("[title='Select month']"));
+        WebElement yearPicker = monthAndYearPicker.findElement(By.cssSelector("[title='Select year']"));
+        WebElement dayPicker = datePicker.findElement(By.cssSelector("ngb-datepicker-month"));
+
+        String year = getYearString(startInstant, timeZone);
+        String month = getMonthString(startInstant, timeZone);
+        String date = getFullDateString(startInstant, timeZone);
+
+        int currentYear = Integer.valueOf(getYearString(Instant.now(), timeZone));
+        // Dropdown option iniitally only available for 10 years from current year.
+        while (Integer.valueOf(year) - currentYear > 10) {
+            currentYear = currentYear + 10;
+            selectDropdownOptionByText(yearPicker, String.valueOf(currentYear));
+            yearPicker = monthAndYearPicker.findElement(By.cssSelector("[title='Select year']"));
+        }
+        selectDropdownOptionByText(yearPicker, year);
+        selectDropdownOptionByText(monthPicker, month);
+        dayPicker.findElement(By.cssSelector(String.format("[aria-label='%s']", date))).click();
+    }
+
     protected void fillFileBox(RemoteWebElement fileBoxElement, String fileName) {
         if (fileName.isEmpty()) {
             fileBoxElement.clear();
@@ -658,4 +684,15 @@ public abstract class AppPage {
         return DateTimeFormatter.ofPattern(pattern).format(zonedDateTime);
     }
 
+    private String getFullDateString(Instant instant, String timeZone) {
+        return getDisplayedDateTime(instant, timeZone, "EEEE, MMMM d, yyyy");
+    }
+
+    private String getYearString(Instant instant, String timeZone) {
+        return getDisplayedDateTime(instant, timeZone, "yyyy");
+    }
+
+    private String getMonthString(Instant instant, String timeZone) {
+        return getDisplayedDateTime(instant, timeZone, "MMM");
+    }
 }
