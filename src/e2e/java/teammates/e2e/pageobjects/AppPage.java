@@ -354,6 +354,13 @@ public abstract class AppPage {
         String month = getMonthString(startInstant, timeZone);
         String date = getFullDateString(startInstant, timeZone);
 
+        int currentYear = Integer.valueOf(getYearString(Instant.now(), timeZone));
+        // Dropdown option iniitally only available for 10 years from current year.
+        while (Integer.valueOf(year) - currentYear > 10) {
+            currentYear = currentYear + 10;
+            selectDropdownOptionByText(yearPicker, String.valueOf(currentYear));
+            yearPicker = monthAndYearPicker.findElement(By.cssSelector("[title='Select year']"));
+        }
         selectDropdownOptionByText(yearPicker, year);
         selectDropdownOptionByText(monthPicker, month);
         dayPicker.findElement(By.cssSelector(String.format("[aria-label='%s']", date))).click();
