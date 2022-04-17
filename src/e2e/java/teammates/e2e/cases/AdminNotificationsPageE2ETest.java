@@ -1,5 +1,9 @@
 package teammates.e2e.cases;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import org.testng.annotations.Test;
 
 import teammates.common.datatransfer.NotificationStyle;
@@ -40,10 +44,11 @@ public class AdminNotificationsPageE2ETest extends BaseE2ETestCase {
         verifyPresentInDatabase(notifications[1]);
 
         ______TS("add new notification");
+        int currentYear = LocalDate.now().getYear();
         NotificationAttributes newNotification = NotificationAttributes
                 .builder("placeholder-notif-id")
-                .withStartTime(TimeHelper.parseInstant("2035-04-01T22:00:00Z"))
-                .withEndTime(TimeHelper.parseInstant("2035-04-30T20:00:00Z"))
+                .withStartTime(LocalDateTime.of(currentYear + 8, 1, 2, 12, 0).atZone(ZoneId.of("UTC")).toInstant())
+                .withEndTime(LocalDateTime.of(currentYear + 8, 1, 3, 12, 0).atZone(ZoneId.of("UTC")).toInstant())
                 .withStyle(NotificationStyle.SUCCESS)
                 .withTargetUser(NotificationTargetUser.GENERAL)
                 .withTitle("E2E test notification 1")
@@ -65,7 +70,7 @@ public class AdminNotificationsPageE2ETest extends BaseE2ETestCase {
 
         ______TS("edit notification");
         newNotification.setStartTime(TimeHelper.parseInstant("2025-05-09T12:00:00Z"));
-        newNotification.setEndTime(TimeHelper.parseInstant("2045-06-01T22:00:00Z"));
+        newNotification.setEndTime(TimeHelper.parseInstant("2030-06-01T22:00:00Z"));
         newNotification.setStyle(NotificationStyle.DANGER);
         newNotification.setTargetUser(NotificationTargetUser.INSTRUCTOR);
         newNotification.setTitle("Edited E2E test notification 1");
