@@ -131,8 +131,9 @@ public class DataMigrationForAccountAndReadNotificationSql extends DatastoreClie
                 oldAccount.getName(),
                 oldAccount.getEmail());
 
-        entitiesAccountSavingBuffer.add(newAccount);
+        oldAccount.setMigrated(true);
 
+        entitiesAccountSavingBuffer.add(newAccount);
         oldAccount.setMigrated(true);
         entitiesOldAccountSavingBuffer.add(oldAccount);
         migrateReadNotification(oldAccount, newAccount);
